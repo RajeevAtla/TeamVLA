@@ -1,0 +1,69 @@
+[project]
+name = "teamvla"
+version = "0.1.0"
+description = "Two-Arm Newton-Guided Operations benchmark and baseline trainer."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+  { name = "TeamVLA Contributors" }
+]
+dependencies = [
+  "torch>=2.2",
+  "numpy>=1.26",
+  "opencv-python>=4.9",
+  "gradio>=4.0",
+  "pyyaml>=6.0",
+  "tqdm>=4.66",
+  "rich>=13.7",
+  "scipy>=1.11",
+  "typing-extensions>=4.9",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "pytest-cov>=4.1",
+  "mypy>=1.9",
+  "ruff>=0.4",
+  "black>=24.3",
+]
+
+[project.urls]
+homepage = "https://example.com/teamvla"
+
+[build-system]
+requires = ["setuptools>=67.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+select = ["E", "F", "I", "B", "UP", "C4"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_unused_configs = true
+warn_return_any = true
+disallow_untyped_defs = false
+no_implicit_optional = true
+strict_optional = true
+pretty = true
+show_error_codes = true
+namespace_packages = true
+explicit_package_bases = true
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra -q"
+testpaths = [
+  "tests",
+]
+markers = [
+  "requires_newton: marks tests that require the Newton physics runtime",
+]
