@@ -1,0 +1,9 @@
+task: lift
+randomization:
+  object_scale: [0.9, 1.1]
+  object_mass: [0.5, 1.5]
+reward_weights:
+  align: 1.0
+  lift_height: 2.0
+controller:
+  waypoint_file: null

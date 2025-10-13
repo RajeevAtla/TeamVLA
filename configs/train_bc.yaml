@@ -1,0 +1,26 @@
+seed: 7
+dataset:
+  roots:
+    - data/episodes/lift
+    - data/episodes/handoff
+    - data/episodes/drawer
+  tasks: [lift, handoff, drawer]
+  batch_size: 8
+  shuffle: true
+  num_workers: 0
+model:
+  type: single_brain
+  hidden_dim: 512
+  dropout: 0.1
+optimizer:
+  name: adamw
+  lr: 0.0001
+  weight_decay: 0.01
+scheduler:
+  warmup_steps: 1000
+  total_steps: 100000
+loss_weights:
+  huber: 1.0
+  grip: 1.0
+  sync: 0.1
+  collision: 0.01

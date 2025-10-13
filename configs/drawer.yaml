@@ -1,0 +1,9 @@
+task: drawer
+randomization:
+  drawer_offset: [-0.02, 0.02]
+  handle_tilt: [-5.0, 5.0]
+reward_weights:
+  symmetry: 1.0
+  open_distance: 4.0
+controller:
+  waypoint_file: null

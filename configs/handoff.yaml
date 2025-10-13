@@ -1,0 +1,9 @@
+task: handoff
+randomization:
+  source_height: [0.1, 0.3]
+  target_height: [0.1, 0.3]
+reward_weights:
+  rendezvous: 1.5
+  transfer: 3.0
+controller:
+  waypoint_file: null

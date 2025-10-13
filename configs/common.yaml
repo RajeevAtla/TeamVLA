@@ -1,0 +1,9 @@
+seed: 0
+device: cpu
+log:
+  level: INFO
+  dir: runs
+viewer:
+  enabled: false
+  width: 640
+  height: 480
