@@ -5,9 +5,11 @@ dataset:
     - data/episodes/handoff
     - data/episodes/drawer
   tasks: [lift, handoff, drawer]
+  limit_per_task: null
   batch_size: 8
   shuffle: true
   num_workers: 0
+  drop_last: false
 model:
   type: single_brain
   hidden_dim: 512

@@ -7,3 +7,7 @@ viewer:
   enabled: false
   width: 640
   height: 480
+data:
+  root: data/episodes
+  format: npz
+  compress: true

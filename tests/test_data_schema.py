@@ -36,7 +36,23 @@ def test_validate_step_missing_field_raises() -> None:
         schema.validate_step(step)
 
 
+def test_validate_step_rejects_wrong_dtype() -> None:
+    step = _valid_step()
+    step["rgb_a"] = np.zeros((2, 2, 3), dtype=np.float32)
+    with pytest.raises(schema.SchemaError):
+        schema.validate_step(step)
+
+
 def test_validate_episode_meta_returns_dataclass() -> None:
-    meta = schema.validate_episode_meta({"task": "lift", "episode_id": "0001", "success": True})
+    meta = schema.validate_episode_meta(
+        {"task": "lift", "episode_id": "0001", "success": True, "num_steps": 3}
+    )
     assert meta.task == "lift"
     assert meta.success
+    assert meta.num_steps == 3
+
+
+def test_validate_episode_reports_negative_steps() -> None:
+    with pytest.raises(schema.SchemaError):
+        schema.validate_episode_meta({"task": "lift", "episode_id": "bad", "num_steps": -1})
+

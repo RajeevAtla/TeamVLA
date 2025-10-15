@@ -11,8 +11,11 @@ from data.dataloader import MultiTaskDataset
 from data.writer import EpisodeWriter
 
 
-def _meta(task: str, episode_id: str) -> dict[str, Any]:
-    return {"task": task, "episode_id": episode_id, "success": False}
+def _meta(task: str, episode_id: str | None = None) -> dict[str, Any]:
+    meta: dict[str, Any] = {"task": task, "success": False}
+    if episode_id is not None:
+        meta["episode_id"] = episode_id
+    return meta
 
 
 def _step(task: str) -> dict[str, Any]:
@@ -32,7 +35,7 @@ def _step(task: str) -> dict[str, Any]:
 
 
 def _write_episode(tmp_path: Path, task: str, episode_id: str, steps: int) -> None:
-    writer = EpisodeWriter(tmp_path)
+    writer = EpisodeWriter(tmp_path, auto_episode_id=False)
     writer.start_episode(_meta(task, episode_id))
     for _ in range(steps):
         writer.add_step(_step(task))
@@ -65,3 +68,11 @@ def test_dataset_applies_transforms(tmp_path: Path) -> None:
 
     dataset = MultiTaskDataset([tmp_path], transforms=[mark])
     assert dataset[0]["mark"] is True
+
+
+def test_dataset_limit_per_task(tmp_path: Path) -> None:
+    _write_episode(tmp_path, "lift", "0001", steps=1)
+    _write_episode(tmp_path, "lift", "0002", steps=1)
+    dataset = MultiTaskDataset([tmp_path], limit_per_task=1)
+    assert len(dataset) == 1
+

@@ -9,14 +9,12 @@ import pytest
 
 from data.writer import EpisodeWriter
 
-from data import schema
-
 
 def _meta() -> dict[str, object]:
     return {"task": "lift", "episode_id": "demo", "success": False}
 
 
-def _step() -> dict[str, object]:
+def _step(task: str = "lift") -> dict[str, object]:
     return {
         "rgb_a": np.zeros((2, 2, 3), dtype=np.uint8),
         "rgb_b": np.zeros((2, 2, 3), dtype=np.uint8),
@@ -27,7 +25,7 @@ def _step() -> dict[str, object]:
         "grip_a": 0.0,
         "grip_b": 0.0,
         "instruction": "lift",
-        "task": "lift",
+        "task": task,
         "success": False,
     }
 
@@ -40,12 +38,23 @@ def test_episode_writer_writes_npz(tmp_path: Path) -> None:
 
     with np.load(path, allow_pickle=True) as data:
         meta = data["meta"].item()
-        assert meta["success"]
+        assert meta["success"] is True
+        assert meta["num_steps"] == 1
+        assert meta["version"] >= 1
         steps = data["steps"].tolist()
         assert len(steps) == 1
+
+
+def test_writer_auto_generates_episode_id(tmp_path: Path) -> None:
+    writer = EpisodeWriter(tmp_path, episode_prefix="auto")
+    episode_meta = writer.start_episode({"task": "lift"})
+    assert episode_meta.episode_id.startswith("auto_")
+    writer.add_step(_step())
+    writer.end_episode()
 
 
 def test_ending_without_start_raises(tmp_path: Path) -> None:
     writer = EpisodeWriter(tmp_path)
     with pytest.raises(RuntimeError):
         writer.end_episode()
+
