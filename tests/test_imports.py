@@ -10,6 +10,7 @@ import pytest
     [
         "envs",
         "envs.core_env",
+        "envs.sim_state",
         "envs.tasks",
         "envs.tasks.base",
         "envs.tasks.lift",
