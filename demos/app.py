@@ -3,11 +3,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Callable, List, Sequence
+from pathlib import Path
+from typing import Any, Callable, Sequence
 
 import numpy as np
 
 from envs import NewtonMAEnv
+
+try:  # pragma: no cover - optional torch dependency
+    import torch
+except ImportError:  # pragma: no cover
+    torch = None
 
 try:  # pragma: no cover - optional torch dependency
     from models.vla_singlebrain import SingleBrainVLA
@@ -19,31 +25,38 @@ except ImportError:  # pragma: no cover
 class DemoConfig:
     max_steps: int = 32
     task: str = "lift"
+    checkpoint: Path | None = None
 
 
-def load_policy(checkpoint_path: str | None = None) -> Callable[[Sequence[dict[str, Any]]], List[np.ndarray]]:
-    """Load a trained policy; defaults to a zero-action stub if Torch unavailable."""
+def load_policy(checkpoint_path: str | Path | None = None) -> Callable[[Sequence[dict[str, Any]]], list[np.ndarray]]:
+    """Load a trained policy; defaults to a zero-action shim if unavailable."""
 
-    del checkpoint_path  # Placeholder for future checkpoint support.
-    if SingleBrainVLA is None:
-        return _zero_policy
-    try:  # pragma: no cover - executed when torch is available
-        model = SingleBrainVLA({"vision_dim": 16, "text_dim": 16, "fusion_dim": 32, "action_dim": 4})
-    except Exception:  # noqa: BLE001 - fall back gracefully
+    if checkpoint_path is None or SingleBrainVLA is None or torch is None:
         return _zero_policy
 
-    def _policy(observations: Sequence[dict[str, Any]]) -> List[np.ndarray]:
-        return [np.asarray(action, dtype=np.float32) for action in model.act(observations)]
+    checkpoint = Path(checkpoint_path)
+    if not checkpoint.exists():
+        return _zero_policy
 
-    return _policy
+    payload = torch.load(checkpoint, map_location="cpu")
+    model_cfg = payload.get("config", {}).get("model", {})
+    model = SingleBrainVLA(model_cfg)
+    model.load_state_dict(payload["model_state"])
+    model.eval()
+
+    def policy(observations: Sequence[dict[str, Any]]) -> list[np.ndarray]:
+        actions = model.act(observations)
+        return [np.asarray(action, dtype=np.float32) for action in actions]
+
+    return policy
 
 
 def run_demo_episode(instruction: str, *, cfg: DemoConfig | None = None) -> dict[str, Any]:
-    """Run a short demo episode using the placeholder policy."""
+    """Run a short demo episode using the configured policy."""
 
     cfg = cfg or DemoConfig()
     env = NewtonMAEnv({"task_name": cfg.task, "max_steps": cfg.max_steps})
-    policy = load_policy(None)
+    policy = load_policy(cfg.checkpoint)
     actions_log: list[list[float]] = []
     obs = env.reset(instruction)
     info: dict[str, Any] = {}
@@ -82,11 +95,8 @@ def main() -> None:
     iface.launch()
 
 
-def _zero_policy(observations: Sequence[dict[str, Any]]) -> List[np.ndarray]:
-    _unused(observations)
+def _zero_policy(observations: Sequence[dict[str, Any]]) -> list[np.ndarray]:
+    del observations
     return [np.zeros(4, dtype=np.float32), np.zeros(4, dtype=np.float32)]
 
-
-def _unused(*_: Any) -> None:
-    pass
 
