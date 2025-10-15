@@ -7,6 +7,7 @@ from .core_env import (
     make_solver,
     setup_cameras,
 )
+from .sim_state import ArmState, SimulationModel, SimulationObject, SimulationState
 
 __all__ = [
     "EnvironmentConfig",
@@ -14,4 +15,8 @@ __all__ = [
     "build_multi_robot_world",
     "make_solver",
     "setup_cameras",
+    "ArmState",
+    "SimulationModel",
+    "SimulationObject",
+    "SimulationState",
 ]
