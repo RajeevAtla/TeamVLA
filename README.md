@@ -107,6 +107,8 @@ python -m demos.app
 
 It resets the Newton environment per request and reports the placeholder actions returned by the policy shim.  Once checkpoints are available, `demos.app.load_policy` can be extended to load them.
 
+See `docs/workflow.md` for a detailed walkthrough that ties together setup, scripted data generation, training, evaluation, and demo usage.
+
 ## Testing
 
 The unit suite now covers control, data, models, evaluation, scripts, and an end-to-end smoke test linking the pipeline.  Install `torch` locally to run the full suite:
