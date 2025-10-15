@@ -35,3 +35,21 @@ def test_collision_penalty_scales_values() -> None:
     collisions = torch.tensor([1.0, -2.0, 3.0])
     penalty = losses.collision_penalty(collisions, alpha=0.5)
     assert penalty == pytest.approx(1.0)
+
+
+def test_compute_behavior_cloning_losses_combines_terms() -> None:
+    outputs = {
+        "pred_a": torch.zeros((2, 4)),
+        "pred_b": torch.zeros((2, 4)),
+        "grip_logits_a": torch.zeros((2, 1)),
+        "grip_logits_b": torch.zeros((2, 1)),
+    }
+    batch = {
+        "action_a": torch.ones((2, 4)),
+        "action_b": torch.ones((2, 4)),
+        "grip_a": torch.ones((2, 1)),
+        "grip_b": torch.ones((2, 1)),
+    }
+    result = losses.compute_behavior_cloning_losses(outputs, batch, {"actions": 1.0, "grip": 0.5})
+    assert "total" in result
+    assert result["total"] > 0

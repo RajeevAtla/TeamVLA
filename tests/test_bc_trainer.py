@@ -49,6 +49,8 @@ def test_checkpoint_roundtrip(tmp_path: Path) -> None:
     optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
     scheduler = schedulers.cosine_with_warmup(optimizer, warmup_steps=1, total_steps=10)
     checkpoint_path = tmp_path / "ckpt.pt"
-    bc_trainer.save_checkpoint(checkpoint_path, model, optimizer, scheduler, step=5, cfg={"seed": 1})
-    step = bc_trainer.load_checkpoint(checkpoint_path, model, optimizer, scheduler)
-    assert step == 5
+    state = bc_trainer.TrainingState(epoch=3, global_step=100, best_metric=0.5)
+    bc_trainer.save_checkpoint(checkpoint_path, model, optimizer, scheduler, state=state, cfg={"seed": 1})
+    restored = bc_trainer.load_checkpoint(checkpoint_path, model, optimizer, scheduler)
+    assert restored.epoch == 3
+    assert restored.global_step == 100
