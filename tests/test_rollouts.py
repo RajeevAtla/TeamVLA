@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from eval.rollouts import run_episode, run_suite
+from eval.rollouts import RolloutConfig, run_episode, run_suite
 
 
 class _DummyEnv:
@@ -16,7 +16,7 @@ class _DummyEnv:
         self._instruction = instruction
         return [{"rgb": None}, {"rgb": None}]
 
-    def step(self, actions):
+    def step(self, actions):  # noqa: ANN001
         info = {"task_success": False, "collision": 0.0, "coordination": 1.0}
         return [{}, {}], [0.0, 0.0], False, info
 
@@ -30,11 +30,12 @@ def _policy(_obs):
 
 def test_run_episode_returns_trajectory() -> None:
     env = _DummyEnv()
-    traj = run_episode(env, _policy, instruction="test", max_steps=3)
-    assert "steps" in traj
+    cfg = RolloutConfig(max_steps=3, instruction="test")
+    traj = run_episode(env, _policy, cfg)
+    assert traj.steps <= 3
 
 
 def test_run_suite_handles_multiple_tasks() -> None:
     env = _DummyEnv()
-    results = run_suite(env, _policy, tasks=["lift", "handoff"], n_eps=1, unseen=False)
+    results = run_suite(env, _policy, tasks=["lift", "handoff"], n_eps=1, max_steps=3)
     assert len(results) == 2

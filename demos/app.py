@@ -1,41 +1,67 @@
-"""Gradio demo stub for TeamVLA policies."""
+"""Gradio demo for TeamVLA scripted and learned policies."""
 
 from __future__ import annotations
 
-from typing import Any, Callable, Mapping
+from dataclasses import dataclass
+from typing import Any, Callable, List, Sequence
 
 import numpy as np
 
 from envs import NewtonMAEnv
-from models.vla_singlebrain import SingleBrainVLA
+
+try:  # pragma: no cover - optional torch dependency
+    from models.vla_singlebrain import SingleBrainVLA
+except ImportError:  # pragma: no cover
+    SingleBrainVLA = None  # type: ignore
 
 
-def load_policy(checkpoint_path: str | None = None) -> Callable[[Mapping[str, Any]], list[np.ndarray]]:
-    """Load a trained policy; returns a no-op placeholder policy."""
-
-    _unused(checkpoint_path)
-    SingleBrainVLA({"vision_dim": 16, "text_dim": 16, "fusion_dim": 32, "action_dim": 8})
-
-    def policy(obs: Mapping[str, Any]) -> list[np.ndarray]:
-        _unused(obs)
-        return [np.zeros(8, dtype=np.float32), np.zeros(8, dtype=np.float32)]
-
-    return policy
+@dataclass(slots=True)
+class DemoConfig:
+    max_steps: int = 32
+    task: str = "lift"
 
 
-def inference_step(
-    img_a: np.ndarray,
-    img_b: np.ndarray,
-    text: str,
-    state: dict[str, Any],
-) -> tuple[list[np.ndarray], dict[str, Any]]:
-    """Placeholder inference step returning zero-actions and updated state."""
+def load_policy(checkpoint_path: str | None = None) -> Callable[[Sequence[dict[str, Any]]], List[np.ndarray]]:
+    """Load a trained policy; defaults to a zero-action stub if Torch unavailable."""
 
-    _unused(img_a, img_b, text)
-    state = dict(state or {})
-    state.setdefault("calls", 0)
-    state["calls"] += 1
-    return [np.zeros(8), np.zeros(8)], state
+    del checkpoint_path  # Placeholder for future checkpoint support.
+    if SingleBrainVLA is None:
+        return _zero_policy
+    try:  # pragma: no cover - executed when torch is available
+        model = SingleBrainVLA({"vision_dim": 16, "text_dim": 16, "fusion_dim": 32, "action_dim": 4})
+    except Exception:  # noqa: BLE001 - fall back gracefully
+        return _zero_policy
+
+    def _policy(observations: Sequence[dict[str, Any]]) -> List[np.ndarray]:
+        return [np.asarray(action, dtype=np.float32) for action in model.act(observations)]
+
+    return _policy
+
+
+def run_demo_episode(instruction: str, *, cfg: DemoConfig | None = None) -> dict[str, Any]:
+    """Run a short demo episode using the placeholder policy."""
+
+    cfg = cfg or DemoConfig()
+    env = NewtonMAEnv({"task_name": cfg.task, "max_steps": cfg.max_steps})
+    policy = load_policy(None)
+    actions_log: list[list[float]] = []
+    obs = env.reset(instruction)
+    info: dict[str, Any] = {}
+    try:
+        for _ in range(cfg.max_steps):
+            acts = policy(obs)
+            actions_log.append([float(x) for x in acts[0]])
+            obs, _rewards, done, info = env.step(acts)
+            if done:
+                break
+    finally:
+        env.close()
+    return {
+        "instruction": instruction,
+        "steps": len(actions_log),
+        "actions": actions_log,
+        "success": bool(info.get("task_success", False)),
+    }
 
 
 def main() -> None:
@@ -46,18 +72,21 @@ def main() -> None:
     except ImportError as exc:  # pragma: no cover
         raise ImportError("Gradio is required to launch the demo application.") from exc
 
-    env = NewtonMAEnv({"task_name": "lift"})
     iface = gr.Interface(
-        fn=lambda text: inference_step(np.zeros((3, 64, 64)), np.zeros((3, 64, 64)), text, {}),
+        fn=lambda instruction: run_demo_episode(instruction, cfg=DemoConfig()),
         inputs=gr.Textbox(label="Instruction"),
-        outputs=gr.JSON(label="Actions"),
+        outputs=gr.JSON(label="Episode Summary"),
         title="TeamVLA Demo",
-        description="Placeholder demo returning zero actions.",
+        description="Runs a short scripted rollout and reports placeholder actions.",
     )
-    env.close()
     iface.launch()
 
 
+def _zero_policy(observations: Sequence[dict[str, Any]]) -> List[np.ndarray]:
+    _unused(observations)
+    return [np.zeros(4, dtype=np.float32), np.zeros(4, dtype=np.float32)]
+
+
 def _unused(*_: Any) -> None:
-    """Helper for unused arguments."""
+    pass
 

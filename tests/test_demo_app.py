@@ -12,14 +12,14 @@ from demos import app
 
 def test_load_policy_returns_callable() -> None:
     policy = app.load_policy(None)
-    actions = policy({"observation": 0})
+    actions = policy([{"rgb": np.zeros((48, 48, 3), dtype=np.uint8)}, {"rgb": np.zeros((48, 48, 3), dtype=np.uint8)}])
     assert len(actions) == 2
 
 
-def test_inference_step_updates_state() -> None:
-    actions, state = app.inference_step(np.zeros((3, 64, 64)), np.zeros((3, 64, 64)), "text", {})
-    assert state["calls"] == 1
-    assert len(actions) == 2
+def test_run_demo_episode_returns_summary() -> None:
+    summary = app.run_demo_episode("test instruction", cfg=app.DemoConfig(max_steps=2))
+    assert "actions" in summary
+    assert summary["steps"] <= 2
 
 
 def test_main_launches_interface(monkeypatch) -> None:
@@ -27,8 +27,8 @@ def test_main_launches_interface(monkeypatch) -> None:
     launch_called = {"flag": False}
 
     class FakeInterface:
-        def __init__(self, *args, **kwargs):
-            self.launched = False
+        def __init__(self, *args, **kwargs):  # noqa: D401,ANN001
+            pass
 
         def launch(self):
             launch_called["flag"] = True
@@ -39,3 +39,4 @@ def test_main_launches_interface(monkeypatch) -> None:
     monkeypatch.setitem(sys.modules, "gradio", fake_gradio)
     app.main()
     assert launch_called["flag"]
+
