@@ -27,12 +27,18 @@ SCRIPTED_POLICIES: dict[str, Callable] = {
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Collect scripted TeamVLA demonstrations.")
     parser.add_argument("--out", type=Path, default=Path("data/episodes"))
-    parser.add_argument("--task", choices=list(SCRIPTED_POLICIES), default="lift", help="Single task to collect.")
-    parser.add_argument("--tasks", nargs="*", default=None, help="Optional list of tasks to collect.")
+    parser.add_argument(
+        "--task", choices=list(SCRIPTED_POLICIES), default="lift", help="Single task to collect."
+    )
+    parser.add_argument(
+        "--tasks", nargs="*", default=None, help="Optional list of tasks to collect."
+    )
     parser.add_argument("--episodes", type=int, default=1, help="Episodes per task.")
     parser.add_argument("--max-steps", type=int, default=200, help="Max steps per episode.")
     parser.add_argument("--seed", type=int, default=None, help="Optional seed for reproducibility.")
-    parser.add_argument("--record-infos", action="store_true", help="Store environment info in steps.")
+    parser.add_argument(
+        "--record-infos", action="store_true", help="Store environment info in steps."
+    )
     return parser.parse_args(argv)
 
 

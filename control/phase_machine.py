@@ -88,7 +88,9 @@ class PhaseMachine:
             self._steps_in_phase = 0
 
 
-def phase_signals_from_state(state: Mapping[str, Any], task_info: Mapping[str, Any]) -> dict[str, bool]:
+def phase_signals_from_state(
+    state: Mapping[str, Any], task_info: Mapping[str, Any]
+) -> dict[str, bool]:
     """Derive phase transition signals from environment state and task info."""
 
     timeout_threshold = task_info.get("max_steps")

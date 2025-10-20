@@ -57,4 +57,3 @@ def test_ending_without_start_raises(tmp_path: Path) -> None:
     writer = EpisodeWriter(tmp_path)
     with pytest.raises(RuntimeError):
         writer.end_episode()
-

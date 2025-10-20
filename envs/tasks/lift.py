@@ -93,7 +93,7 @@ class LiftTask:
             float(np.linalg.norm(right.position - cube.position)),
         )
         runtime.distances = distances
-        runtime.holders = ( "agent_0" in cube.holders, "agent_1" in cube.holders)
+        runtime.holders = ("agent_0" in cube.holders, "agent_1" in cube.holders)
         runtime.height = float(cube.position[2])
         runtime.xy_distance = float(
             np.linalg.norm(cube.position[:2] - state.task_state["target_xy"])

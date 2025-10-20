@@ -87,9 +87,7 @@ class NewtonMAEnv:
         rewards = self._sanitize_rewards(self._task.reward(self._state, self._current_phase))
         done = bool(self._task.success(self._state) or self._step_count >= self._config.max_steps)
         info = self._build_info(done)
-        observations = [
-            self._build_observation(agent_id=i, extras=info) for i in range(NUM_AGENTS)
-        ]
+        observations = [self._build_observation(agent_id=i, extras=info) for i in range(NUM_AGENTS)]
         return observations, rewards, done, info
 
     def render(self, mode: str = "rgb_array") -> dict[str, Any]:
@@ -290,10 +288,7 @@ def obs_i(
     peer_name = f"agent_{1 - agent_id}"
     arm = state.arms[agent_name]
     peer = state.arms[peer_name]
-    object_summary = {
-        name: obj.position.copy()
-        for name, obj in state.objects.items()
-    }
+    object_summary = {name: obj.position.copy() for name, obj in state.objects.items()}
 
     observation = {
         "agent_id": agent_id,
@@ -336,8 +331,10 @@ def render_topdown(
 
     for idx, arm in state.arms.items():
         x, y = _project(arm.position)
-        color = np.array([0, 180, 255], dtype=np.uint8) if idx == "agent_0" else np.array(
-            [255, 120, 0], dtype=np.uint8
+        color = (
+            np.array([0, 180, 255], dtype=np.uint8)
+            if idx == "agent_0"
+            else np.array([255, 120, 0], dtype=np.uint8)
         )
         image[max(0, y - 1) : min(size, y + 2), max(0, x - 1) : min(size, x + 2)] = color
 

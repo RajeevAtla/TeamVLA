@@ -87,7 +87,9 @@ def scripted_policy(
     return actions
 
 
-def _action_towards(current: NDArray[np.float64], target: NDArray[np.float64], grip: float) -> NDArray[np.float64]:
+def _action_towards(
+    current: NDArray[np.float64], target: NDArray[np.float64], grip: float
+) -> NDArray[np.float64]:
     pose = np.zeros(7, dtype=np.float64)
     pose[:3] = target
     solved = ik_utils.solve_ik(current, pose)
@@ -96,8 +98,12 @@ def _action_towards(current: NDArray[np.float64], target: NDArray[np.float64], g
     return ik_utils.clamp_action(action, MAX_STEP)
 
 
-def _both_within(positions: Sequence[NDArray[np.float64]], targets: Sequence[NDArray[np.float64]], *, thresh: float) -> bool:
+def _both_within(
+    positions: Sequence[NDArray[np.float64]],
+    targets: Sequence[NDArray[np.float64]],
+    *,
+    thresh: float,
+) -> bool:
     return all(
-        np.linalg.norm(pos - tgt) <= thresh
-        for pos, tgt in zip(positions, targets, strict=True)
+        np.linalg.norm(pos - tgt) <= thresh for pos, tgt in zip(positions, targets, strict=True)
     )

@@ -106,6 +106,7 @@ def clamp_action(delta_q: NDArray[np.float64], max_norm: float) -> NDArray[np.fl
 # Internal helpers                                                           #
 # ---------------------------------------------------------------------------#
 
+
 def _extract_position(state: Mapping[str, Any], agent_id: int) -> NDArray[np.float64]:
     """Support extracting positions from SimulationState, observations, or dicts."""
 

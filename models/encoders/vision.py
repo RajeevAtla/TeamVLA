@@ -105,7 +105,9 @@ class _ConvVisionEncoder(nn.Module if nn is not None else object):
         return self.head(pooled)
 
 
-def _conv_block(in_channels: int, out_channels: int, *, use_bn: bool, name: str) -> Iterable[nn.Module]:
+def _conv_block(
+    in_channels: int, out_channels: int, *, use_bn: bool, name: str
+) -> Iterable[nn.Module]:
     del name  # Reserved for future debugging hooks
     layers: list[nn.Module] = [
         nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=2, padding=1, bias=not use_bn),
@@ -118,4 +120,3 @@ def _conv_block(in_channels: int, out_channels: int, *, use_bn: bool, name: str)
 
 def _unused(*_: object) -> None:
     """Placeholder helper for unused arguments."""
-

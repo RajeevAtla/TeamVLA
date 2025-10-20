@@ -131,4 +131,3 @@ class EpisodeWriter:
     def _episode_path(self, meta: EpisodeMeta) -> Path:
         filename = f"{meta.task}_{meta.episode_id}.{self._fmt}"
         return self._out_dir / filename
-

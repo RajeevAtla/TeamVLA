@@ -33,4 +33,3 @@ def test_main_writes_output(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> 
 
 def _unused(*_: object) -> None:
     pass
-

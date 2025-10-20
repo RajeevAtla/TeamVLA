@@ -98,4 +98,3 @@ def _tensor_device(outputs: Mapping[str, Any]) -> torch.device:
         if torch.is_tensor(value):
             return value.device
     return torch.device("cpu")
-

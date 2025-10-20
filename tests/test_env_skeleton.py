@@ -90,4 +90,3 @@ def test_environment_config_parses_defaults() -> None:
 
 def _unused(*_: Any) -> None:
     """Helper to silence unused argument warnings."""
-

@@ -128,4 +128,3 @@ def _normalize_transforms(transforms: Sequence[Transform] | Transform | None) ->
     if callable(transforms):
         return [transforms]
     return list(transforms)
-

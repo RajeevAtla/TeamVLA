@@ -100,10 +100,7 @@ class DrawerTask:
         if state.task_state.get("phase") != "hold":
             runtime.hold_counter = 0
 
-        handles = {
-            name: state.objects[name]
-            for name in ("drawer_left", "drawer_right")
-        }
+        handles = {name: state.objects[name] for name in ("drawer_left", "drawer_right")}
         assignments = state.task_state["assigned_handles"]
         initial = state.task_state["handle_initial"]
 
@@ -148,9 +145,7 @@ class DrawerTask:
         elif phase == "pull":
             progress = np.clip(runtime.extension / state.task_state["max_extension"], 0.0, 1.2)
             reward[:] = progress
-            runtime.phase_flags[phase] = bool(
-                all(holdings) and runtime.extension >= 0.18
-            )
+            runtime.phase_flags[phase] = bool(all(holdings) and runtime.extension >= 0.18)
         elif phase == "hold":
             if runtime.extension >= 0.2 and all(holdings):
                 runtime.hold_counter += 1
@@ -164,7 +159,8 @@ class DrawerTask:
             openers = np.array([state.arms["agent_0"].gripper, state.arms["agent_1"].gripper])
             reward[:] = np.clip(openers, 0.0, 1.0)
             runtime.phase_flags[phase] = bool(
-                openers.min() >= 0.9 and not any(
+                openers.min() >= 0.9
+                and not any(
                     agent in state.objects[assignments[agent]].holders for agent in assignments
                 )
                 and runtime.extension >= 0.2
@@ -176,10 +172,7 @@ class DrawerTask:
 
     def success(self, state: SimulationState) -> bool:
         runtime = self._runtime(state)
-        return bool(
-            runtime.phase_flags.get("release")
-            and runtime.extension >= 0.2
-        )
+        return bool(runtime.phase_flags.get("release") and runtime.extension >= 0.2)
 
     def scripted_action(self, obs: Mapping[str, Any], phase: str, agent_id: int) -> Sequence[float]:
         _unused(obs, phase, agent_id)
