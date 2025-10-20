@@ -14,11 +14,11 @@ TeamVLA is a benchmark and reference implementation for coordinating two robot a
 uv venv .venv
 source .venv/bin/activate  # or .venv\\Scripts\\activate on Windows
 
-# Install runtime dependencies
-uv pip install -r requirements.txt
+# Install runtime dependencies from pyproject.toml / uv.lock
+uv sync
 
-# (Optional) install developer tooling
-uv pip install -r requirements.txt -r <(printf 'pytest>=8.0\npytest-cov>=4.1\nmypy>=1.9\nruff>=0.4\nblack>=24.3\n')
+# (Optional) install developer tooling (adds [tool.uv] dev-dependencies)
+uv sync --dev
 ```
 
 > We default to `uv` for package management; feel free to translate the commands to your preferred tooling if necessary.
