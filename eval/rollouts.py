@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable, Iterable, Mapping, MutableMapping
 from dataclasses import dataclass, field
-from typing import Any, Callable, Iterable, List, Mapping, MutableMapping
+from typing import Any
 
 LOGGER = logging.getLogger(__name__)
 
@@ -56,7 +57,9 @@ def run_episode(env: Any, policy: PolicyFn, cfg: RolloutConfig) -> RolloutResult
         _seed_environment(env, cfg.seed)
 
     observations = env.reset(cfg.instruction)
-    info_proto: MutableMapping[str, Any] = getattr(env, "get_state_dict", lambda: {"task": cfg.instruction})()
+    info_proto: MutableMapping[str, Any] = getattr(
+        env, "get_state_dict", lambda: {"task": cfg.instruction}
+    )()
     task_name = info_proto.get("task", getattr(env, "_task", cfg.instruction))
 
     trajectory = RolloutResult(task=task_name, instruction=cfg.instruction, steps=0, success=False)
@@ -119,4 +122,3 @@ def _seed_environment(env: Any, seed: int) -> None:
             env._rng = np.random.default_rng(seed)  # type: ignore[attr-defined]
         except ImportError:  # pragma: no cover
             pass
-

@@ -37,4 +37,3 @@ def test_phase_signals_from_state_extracts_flags() -> None:
     assert signals["collision"]
     assert signals["timeout_imminent"]
     assert signals["task_success"]
-

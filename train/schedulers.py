@@ -2,16 +2,25 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from math import cos, pi
-from typing import Any, Mapping
+from typing import TYPE_CHECKING, Any, cast
+
 try:  # pragma: no cover - optional torch dependency
-    import torch
+    import torch as _torch
 except ImportError:  # pragma: no cover
-    torch = None
+    _torch = cast(Any, None)
+
+if TYPE_CHECKING:  # pragma: no cover - only for static analysis
+    import torch
+else:  # pragma: no cover - runtime shim when torch is optional
+    torch = cast(Any, _torch)
+
+_TORCH_AVAILABLE = _torch is not None
 
 
 def _require_torch() -> None:
-    if torch is None:  # pragma: no cover
+    if not _TORCH_AVAILABLE:  # pragma: no cover
         raise ImportError("PyTorch is required for optimizer and scheduler helpers.")
 
 

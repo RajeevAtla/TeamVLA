@@ -55,4 +55,3 @@ def test_validate_episode_meta_returns_dataclass() -> None:
 def test_validate_episode_reports_negative_steps() -> None:
     with pytest.raises(schema.SchemaError):
         schema.validate_episode_meta({"task": "lift", "episode_id": "bad", "num_steps": -1})
-

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 import numpy as np
 from numpy.typing import NDArray
@@ -37,8 +38,12 @@ def scripted_policy(
     metadata = obs_a.get("metadata", {})
     handles = obs_a.get("objects", {})
 
-    handle_left = np.asarray(handles.get("drawer_left", np.array([-0.14, -0.12, 0.1])), dtype=np.float64)
-    handle_right = np.asarray(handles.get("drawer_right", np.array([0.14, -0.12, 0.1])), dtype=np.float64)
+    handle_left = np.asarray(
+        handles.get("drawer_left", np.array([-0.14, -0.12, 0.1])), dtype=np.float64
+    )
+    handle_right = np.asarray(
+        handles.get("drawer_right", np.array([0.14, -0.12, 0.1])), dtype=np.float64
+    )
 
     phase = phase_machine.current()
     positions = [
@@ -54,20 +59,33 @@ def scripted_policy(
     elif phase == "grasp":
         targets = [handle_left + HANDLE_APPROACH * 0.3, handle_right + HANDLE_APPROACH * 0.3]
         grippers = [0.0, 0.0]
-        complete = metadata.get("distance_left", 1.0) < 0.08 and metadata.get("distance_right", 1.0) < 0.08
+        complete = (
+            metadata.get("distance_left", 1.0) < 0.08 and metadata.get("distance_right", 1.0) < 0.08
+        )
     elif phase == "pull":
-        pull_offset = np.array([0.0, metadata.get("drawer_extension", 0.0) + 0.05, 0.0], dtype=np.float64)
-        targets = [handle_left + HANDLE_APPROACH * 0.2 + pull_offset, handle_right + HANDLE_APPROACH * 0.2 + pull_offset]
+        pull_offset = np.array(
+            [0.0, metadata.get("drawer_extension", 0.0) + 0.05, 0.0], dtype=np.float64
+        )
+        targets = [
+            handle_left + HANDLE_APPROACH * 0.2 + pull_offset,
+            handle_right + HANDLE_APPROACH * 0.2 + pull_offset,
+        ]
         grippers = [0.0, 0.0]
         complete = metadata.get("drawer_extension", 0.0) >= 0.18
     elif phase == "hold":
         pull_offset = np.array([0.0, metadata.get("drawer_extension", 0.0), 0.0], dtype=np.float64)
-        targets = [handle_left + HANDLE_APPROACH * 0.2 + pull_offset, handle_right + HANDLE_APPROACH * 0.2 + pull_offset]
+        targets = [
+            handle_left + HANDLE_APPROACH * 0.2 + pull_offset,
+            handle_right + HANDLE_APPROACH * 0.2 + pull_offset,
+        ]
         grippers = [0.0, 0.0]
         complete = metadata.get("drawer_extension", 0.0) >= 0.2
     else:  # release
         pull_offset = np.array([0.0, metadata.get("drawer_extension", 0.0), 0.0], dtype=np.float64)
-        targets = [handle_left + HANDLE_APPROACH * 0.2 + pull_offset, handle_right + HANDLE_APPROACH * 0.2 + pull_offset]
+        targets = [
+            handle_left + HANDLE_APPROACH * 0.2 + pull_offset,
+            handle_right + HANDLE_APPROACH * 0.2 + pull_offset,
+        ]
         grippers = [1.0, 1.0]
         complete = metadata.get("drawer_extension", 0.0) >= 0.2
 
@@ -84,7 +102,9 @@ def scripted_policy(
     return actions
 
 
-def _action_towards(current: NDArray[np.float64], target: NDArray[np.float64], grip: float) -> NDArray[np.float64]:
+def _action_towards(
+    current: NDArray[np.float64], target: NDArray[np.float64], grip: float
+) -> NDArray[np.float64]:
     pose = np.zeros(7, dtype=np.float64)
     pose[:3] = target
     solved = ik_utils.solve_ik(current, pose)

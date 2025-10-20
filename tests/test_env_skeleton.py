@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Generator, Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 import numpy as np
 import pytest
@@ -45,7 +46,7 @@ class _DummyTask:
 
 
 @pytest.fixture(name="dummy_task_name")
-def fixture_dummy_task_name() -> str:
+def fixture_dummy_task_name() -> Generator[str, None, None]:
     name = _DummyTask.name
     register_task(name, _DummyTask)
     yield name
@@ -89,4 +90,3 @@ def test_environment_config_parses_defaults() -> None:
 
 def _unused(*_: Any) -> None:
     """Helper to silence unused argument warnings."""
-

@@ -5,14 +5,17 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-torch = pytest.importorskip("torch")
-
 from models.vla_singlebrain import MsgPassingVLA, SingleBrainVLA
+
+torch = pytest.importorskip("torch")
 
 
 def _dummy_batch(batch_size: int = 2) -> dict[str, torch.Tensor]:
     images = torch.zeros((batch_size, 3, 64, 64))
-    tokens = {"input_ids": torch.zeros((batch_size, 32), dtype=torch.long), "attention_mask": torch.ones((batch_size, 32))}
+    tokens = {
+        "input_ids": torch.zeros((batch_size, 32), dtype=torch.long),
+        "attention_mask": torch.ones((batch_size, 32)),
+    }
     return {
         "rgb_a": images,
         "rgb_b": images,

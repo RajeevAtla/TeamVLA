@@ -5,39 +5,55 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+from collections.abc import Callable, Iterable
 from pathlib import Path
-from typing import Any, Callable, Iterable
+from typing import TYPE_CHECKING, Any, cast
 
 try:  # pragma: no cover - optional torch dependency
-    import torch
+    import torch as _torch
 except ImportError:  # pragma: no cover
-    torch = None
+    _torch = cast(Any, None)
 
+if TYPE_CHECKING:  # pragma: no cover - only for static analysis
+    import torch
+else:  # pragma: no cover - runtime shim when torch is optional
+    torch = cast(Any, _torch)
+
+from envs import NewtonMAEnv
 from eval.metrics import aggregate_results
 from eval.rollouts import run_suite
-from envs import NewtonMAEnv
 
 try:  # pragma: no cover - optional torch dependency
     from models.vla_singlebrain import SingleBrainVLA
 except ImportError:  # pragma: no cover
-    SingleBrainVLA = None  # type: ignore
+    SingleBrainVLA = cast(Any, None)
 
 LOGGER = logging.getLogger(__name__)
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run TeamVLA evaluation benchmark.")
-    parser.add_argument("--tasks", nargs="*", default=["lift", "handoff", "drawer"], help="Tasks to evaluate.")
+    parser.add_argument(
+        "--tasks", nargs="*", default=["lift", "handoff", "drawer"], help="Tasks to evaluate."
+    )
     parser.add_argument("--episodes", type=int, default=1, help="Episodes per task.")
     parser.add_argument("--max-steps", type=int, default=200, help="Max steps per episode.")
-    parser.add_argument("--seed", type=int, default=None, help="Optional base seed for reproducibility.")
+    parser.add_argument(
+        "--seed", type=int, default=None, help="Optional base seed for reproducibility."
+    )
     parser.add_argument("--output", type=Path, default=None, help="Optional JSON output path.")
-    parser.add_argument("--record-infos", action="store_true", help="Store per-step info in results.")
-    parser.add_argument("--checkpoint", type=Path, default=None, help="Optional checkpoint to load.")
+    parser.add_argument(
+        "--record-infos", action="store_true", help="Store per-step info in results."
+    )
+    parser.add_argument(
+        "--checkpoint", type=Path, default=None, help="Optional checkpoint to load."
+    )
     return parser.parse_args(argv)
 
 
-def load_policy(checkpoint: Path | None = None) -> Callable[[list[dict[str, Any]]], list[list[float]]]:
+def load_policy(
+    checkpoint: Path | None = None,
+) -> Callable[[list[dict[str, Any]]], list[list[float]]]:
     """Load a trained policy if Torch/checkpoint are available; otherwise zero actions."""
 
     if checkpoint is None or SingleBrainVLA is None or torch is None:
@@ -122,4 +138,3 @@ def _unused(*_: Any) -> None:
 
 if __name__ == "__main__":  # pragma: no cover
     main()
-

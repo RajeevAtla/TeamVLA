@@ -75,4 +75,3 @@ def test_dataset_limit_per_task(tmp_path: Path) -> None:
     _write_episode(tmp_path, "lift", "0002", steps=1)
     dataset = MultiTaskDataset([tmp_path], limit_per_task=1)
     assert len(dataset) == 1
-

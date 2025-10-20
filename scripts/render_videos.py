@@ -1,17 +1,20 @@
 """Script to convert recorded episodes into MP4 videos."""
 
-from __future__ import annotations
-
 import argparse
+import importlib
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Iterable, Mapping
+from typing import Any, cast
 
 import numpy as np
 
+_imageio_module: Any | None
 try:  # pragma: no cover - optional dependency
-    import imageio.v2 as imageio
+    _imageio_module = importlib.import_module("imageio.v2")
 except ImportError:  # pragma: no cover
-    imageio = None
+    _imageio_module = None
+
+imageio = cast(Any, _imageio_module)
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

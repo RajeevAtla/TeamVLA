@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-torch = pytest.importorskip("torch")
-
 from models.encoders import language, vision
+
+torch = pytest.importorskip("torch")
 
 
 def test_build_vision_encoder_forward_shape() -> None:

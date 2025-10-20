@@ -2,23 +2,28 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Sequence
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 
 from envs import NewtonMAEnv
 
 try:  # pragma: no cover - optional torch dependency
-    import torch
+    import torch as _torch
 except ImportError:  # pragma: no cover
-    torch = None
+    _torch = cast(Any, None)
 
-try:  # pragma: no cover - optional torch dependency
+if TYPE_CHECKING:  # pragma: no cover - only for static analysis
     from models.vla_singlebrain import SingleBrainVLA
-except ImportError:  # pragma: no cover
-    SingleBrainVLA = None  # type: ignore
+else:  # pragma: no cover - runtime shims when optional deps are missing
+    torch = cast(Any, _torch)
+    try:
+        from models.vla_singlebrain import SingleBrainVLA
+    except ImportError:  # pragma: no cover
+        SingleBrainVLA = cast(Any, None)
 
 
 @dataclass(slots=True)
@@ -28,7 +33,9 @@ class DemoConfig:
     checkpoint: Path | None = None
 
 
-def load_policy(checkpoint_path: str | Path | None = None) -> Callable[[Sequence[dict[str, Any]]], list[np.ndarray]]:
+def load_policy(
+    checkpoint_path: str | Path | None = None,
+) -> Callable[[Sequence[dict[str, Any]]], list[np.ndarray]]:
     """Load a trained policy; defaults to a zero-action shim if unavailable."""
 
     if checkpoint_path is None or SingleBrainVLA is None or torch is None:
@@ -63,8 +70,9 @@ def run_demo_episode(instruction: str, *, cfg: DemoConfig | None = None) -> dict
     try:
         for _ in range(cfg.max_steps):
             acts = policy(obs)
-            actions_log.append([float(x) for x in acts[0]])
-            obs, _rewards, done, info = env.step(acts)
+            step_actions = [[float(x) for x in action] for action in acts]
+            actions_log.append(step_actions[0])
+            obs, _rewards, done, info = env.step(step_actions)
             if done:
                 break
     finally:
@@ -98,5 +106,3 @@ def main() -> None:
 def _zero_policy(observations: Sequence[dict[str, Any]]) -> list[np.ndarray]:
     del observations
     return [np.zeros(4, dtype=np.float32), np.zeros(4, dtype=np.float32)]
-
-

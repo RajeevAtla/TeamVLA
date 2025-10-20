@@ -2,25 +2,40 @@
 
 from __future__ import annotations
 
-from typing import Any, Mapping, Sequence
-
-try:  # pragma: no cover - optional torch dependency
-    import torch
-    import torch.nn as nn
-except ImportError:  # pragma: no cover
-    torch = None
-    nn = None
+from collections.abc import Mapping, Sequence
+from typing import TYPE_CHECKING, Any, cast
 
 from models.encoders.language import build_text_encoder, forward_text, tokenize
 from models.encoders.vision import build_vision_encoder
 
+try:  # pragma: no cover - optional torch dependency
+    import torch as _torch
+    import torch.nn as _nn
+except ImportError:  # pragma: no cover
+    _torch = cast(Any, None)
+    _nn = cast(Any, None)
+
+if TYPE_CHECKING:  # pragma: no cover - only for static analysis
+    import torch
+    import torch.nn as nn
+else:  # pragma: no cover - runtime shim when torch is optional
+    torch = cast(Any, _torch)
+    nn = cast(Any, _nn)
+
+_TORCH_AVAILABLE = _torch is not None and _nn is not None
+
+class _StubBaseModule:
+    """Fallback module base when torch is unavailable."""
+
+
+_BaseModule: type[Any] = cast(type[Any], _nn.Module if _TORCH_AVAILABLE else _StubBaseModule)
 
 def _require_torch() -> None:
-    if torch is None or nn is None:  # pragma: no cover
+    if not _TORCH_AVAILABLE:  # pragma: no cover
         raise ImportError("PyTorch is required for VLA models.")
 
 
-class SingleBrainVLA(nn.Module if nn is not None else object):
+class SingleBrainVLA(_BaseModule):
     """Lightweight single-brain policy approximator."""
 
     def __init__(self, cfg: Mapping[str, Any]) -> None:
@@ -79,7 +94,9 @@ class SingleBrainVLA(nn.Module if nn is not None else object):
     def act(self, obs: Sequence[Mapping[str, Any]]) -> list[Any]:
         _require_torch()
         self.eval()
-        device = next(self.parameters()).device if isinstance(self, nn.Module) else torch.device("cpu")
+        device = (
+            next(self.parameters()).device if isinstance(self, nn.Module) else torch.device("cpu")
+        )
         with torch.no_grad():
             batch = self._batch_from_observations(obs, device=device)
             outputs = self.forward(batch)
@@ -100,7 +117,9 @@ class SingleBrainVLA(nn.Module if nn is not None else object):
     # Helpers                                                            #
     # ------------------------------------------------------------------#
 
-    def _encode_modalities(self, batch: Mapping[str, Any]) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    def _encode_modalities(
+        self, batch: Mapping[str, Any]
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         tokens = batch.get("text_tokens")
         if tokens is None:
             text = batch.get("text")
@@ -114,21 +133,24 @@ class SingleBrainVLA(nn.Module if nn is not None else object):
         feat_b = self.vision_encoder(batch["rgb_b"])
         return feat_a, feat_b, feat_text
 
-    def _fuse(self, feat_a: torch.Tensor, feat_b: torch.Tensor, feat_text: torch.Tensor) -> torch.Tensor:
+    def _fuse(
+        self, feat_a: torch.Tensor, feat_b: torch.Tensor, feat_text: torch.Tensor
+    ) -> torch.Tensor:
         fused_input = torch.cat([feat_a, feat_b, feat_text], dim=-1)
         return self._fusion(fused_input)
 
     def _batch_from_observations(
         self, obs: Sequence[Mapping[str, Any]], *, device: torch.device
-    ) -> dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor | dict[str, torch.Tensor]]:
         obs_a, obs_b = obs
-        rgb_a = torch.tensor(obs_a.get("rgb", obs_a.get("rgb_a")), dtype=torch.float32, device=device).unsqueeze(0)
-        rgb_b = torch.tensor(obs_b.get("rgb", obs_b.get("rgb_b")), dtype=torch.float32, device=device).unsqueeze(0)
+        rgb_a = torch.tensor(
+            obs_a.get("rgb", obs_a.get("rgb_a")), dtype=torch.float32, device=device
+        ).unsqueeze(0)
+        rgb_b = torch.tensor(
+            obs_b.get("rgb", obs_b.get("rgb_b")), dtype=torch.float32, device=device
+        ).unsqueeze(0)
         tokens = tokenize([obs_a.get("instruction", "")])
-        tokens = {
-            key: value.to(device)
-            for key, value in tokens.items()
-        }
+        tokens = {key: value.to(device) for key, value in tokens.items()}
         return {
             "rgb_a": rgb_a,
             "rgb_b": rgb_b,
@@ -151,10 +173,11 @@ class MsgPassingVLA(SingleBrainVLA):
         self._message_b = nn.Sequential(nn.Linear(dim, dim), nn.ReLU(inplace=True))
         self._gate = nn.Sigmoid()
 
-    def _fuse(self, feat_a: torch.Tensor, feat_b: torch.Tensor, feat_text: torch.Tensor) -> torch.Tensor:
+    def _fuse(
+        self, feat_a: torch.Tensor, feat_b: torch.Tensor, feat_text: torch.Tensor
+    ) -> torch.Tensor:
         base = super()._fuse(feat_a, feat_b, feat_text)
         msg_a = self._message_a(base)
         msg_b = self._message_b(base)
         gate = self._gate(msg_a - msg_b)
         return base + gate * (msg_a + msg_b) * 0.5
-

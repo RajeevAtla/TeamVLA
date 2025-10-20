@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 import numpy as np
 from numpy.typing import NDArray
@@ -52,11 +53,17 @@ def scripted_policy(
     if phase == "reach_source":
         targets = [source + APPROACH_OFFSET, handoff + APPROACH_OFFSET]
         grippers = [1.0, 1.0]
-        complete = metadata.get("distance_source", 1.0) < 0.12 and np.linalg.norm(positions[1] - targets[1]) < 0.12
+        complete = (
+            metadata.get("distance_source", 1.0) < 0.12
+            and np.linalg.norm(positions[1] - targets[1]) < 0.12
+        )
     elif phase == "grasp_source":
         targets = [source + APPROACH_OFFSET * 0.5, handoff + APPROACH_OFFSET]
         grippers = [0.0, 1.0]
-        complete = metadata.get("distance_source", 1.0) < 0.08 and metadata.get("distance_handoff", 1.0) < 0.15
+        complete = (
+            metadata.get("distance_source", 1.0) < 0.08
+            and metadata.get("distance_handoff", 1.0) < 0.15
+        )
     elif phase == "handover":
         pose_a, pose_b = ik_utils.plan_rendezvous(positions[0], positions[1], handoff)
         targets = [pose_a[:3] + HANDOFF_OFFSET * 0.0, pose_b[:3] + HANDOFF_OFFSET * 0.0]
@@ -84,7 +91,9 @@ def scripted_policy(
     return actions
 
 
-def _action_towards(current: NDArray[np.float64], target: NDArray[np.float64], grip: float) -> NDArray[np.float64]:
+def _action_towards(
+    current: NDArray[np.float64], target: NDArray[np.float64], grip: float
+) -> NDArray[np.float64]:
     pose = np.zeros(7, dtype=np.float64)
     pose[:3] = target
     solved = ik_utils.solve_ik(current, pose)

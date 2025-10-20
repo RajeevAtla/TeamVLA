@@ -1,11 +1,16 @@
 """Inverse kinematics and motion-planning utilities for TeamVLA."""
-
 from __future__ import annotations
 
-from typing import Any, Mapping, MutableMapping
+from collections.abc import Mapping, MutableMapping
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from numpy.typing import NDArray
+
+if TYPE_CHECKING:  # pragma: no cover - only for static analysis
+    from envs.sim_state import SimulationState
+
+StateLike = Mapping[str, Any] | SimulationState
 
 POSITION_DIMS = 3
 POSE_DIMS = 7
@@ -42,7 +47,7 @@ def solve_ik(
     return current
 
 
-def ee_pose_from_state(state: Mapping[str, Any], agent_id: int) -> NDArray[np.float64]:
+def ee_pose_from_state(state: StateLike, agent_id: int) -> NDArray[np.float64]:
     """Extract an end-effector pose for ``agent_id`` from a simulation state or observation."""
 
     position = _extract_position(state, agent_id)
@@ -105,7 +110,8 @@ def clamp_action(delta_q: NDArray[np.float64], max_norm: float) -> NDArray[np.fl
 # Internal helpers                                                           #
 # ---------------------------------------------------------------------------#
 
-def _extract_position(state: Mapping[str, Any], agent_id: int) -> NDArray[np.float64]:
+
+def _extract_position(state: StateLike, agent_id: int) -> NDArray[np.float64]:
     """Support extracting positions from SimulationState, observations, or dicts."""
 
     key = f"agent_{agent_id}"
