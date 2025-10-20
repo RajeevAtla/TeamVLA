@@ -177,7 +177,7 @@ def main(cfg_path: str = "configs/train_bc.yaml") -> None:
     LOGGER.info("Training complete after %s epochs", state.epoch)
 
 
-def _move_batch_to_device(batch: Mapping[str, Any], device: "torch.device") -> dict[str, Any]:
+def _move_batch_to_device(batch: Mapping[str, Any], device: torch.device) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for key, value in batch.items():
         if torch.is_tensor(value):

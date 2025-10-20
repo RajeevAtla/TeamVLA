@@ -126,7 +126,7 @@ class SingleBrainVLA(nn.Module if nn is not None else object):
         return self._fusion(fused_input)
 
     def _batch_from_observations(
-        self, obs: Sequence[Mapping[str, Any]], *, device: "torch.device"
+        self, obs: Sequence[Mapping[str, Any]], *, device: torch.device
     ) -> dict[str, Any]:
         obs_a, obs_b = obs
         rgb_a = torch.tensor(
