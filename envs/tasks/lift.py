@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
+from numpy.typing import NDArray
 
 from envs.sim_state import SimulationObject, SimulationState
 
@@ -54,7 +55,8 @@ class LiftTask:
         rng_offsets = rng.uniform(-0.05, 0.05, size=2)
         cube_position = np.array([0.0, -0.05, 0.08], dtype=np.float64)
         cube_position[:2] += rng_offsets
-        place_xy = rng.uniform([-0.2, 0.15], [0.2, 0.3])
+        place_xy_raw = rng.uniform([-0.2, 0.15], [0.2, 0.3])
+        place_xy: NDArray[np.float64] = np.asarray(place_xy_raw, dtype=np.float64)
         lift_height = 0.32
         surface_height = 0.05
 

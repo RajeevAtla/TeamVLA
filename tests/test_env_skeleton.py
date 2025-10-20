@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Generator, Mapping, Sequence
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
@@ -46,7 +47,7 @@ class _DummyTask:
 
 
 @pytest.fixture(name="dummy_task_name")
-def fixture_dummy_task_name() -> str:
+def fixture_dummy_task_name() -> Generator[str, None, None]:
     name = _DummyTask.name
     register_task(name, _DummyTask)
     yield name

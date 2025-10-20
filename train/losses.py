@@ -3,18 +3,28 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any, cast
 from typing import Any
 
 try:  # pragma: no cover - optional torch dependency
+    import torch as _torch
+    import torch.nn.functional as _F
+except ImportError:  # pragma: no cover
+    _torch = cast(Any, None)
+    _F = cast(Any, None)
+
+if TYPE_CHECKING:  # pragma: no cover - only for static analysis
     import torch
     import torch.nn.functional as F
-except ImportError:  # pragma: no cover
-    torch = None
-    F = None
+else:  # pragma: no cover - runtime shim when torch is optional
+    torch = cast(Any, _torch)
+    F = cast(Any, _F)
+
+_TORCH_AVAILABLE = _torch is not None and _F is not None
 
 
 def _require_torch() -> None:
-    if torch is None or F is None:  # pragma: no cover
+    if not _TORCH_AVAILABLE:  # pragma: no cover
         raise ImportError("PyTorch is required for loss computation.")
 
 
@@ -32,10 +42,20 @@ def grip_bce_loss(pred: Any, target: Any, reduction: str = "mean") -> Any:
     return F.binary_cross_entropy_with_logits(pred, target, reduction=reduction)
 
 
-def sync_loss(ee_a: Any, ee_b: Any, phase_mask: Any | None = None) -> Any:
+def sync_loss(
+    ee_a: Any,
+    ee_b: Any,
+    *,
+    phase_mask: Any | None = None,
+    phase: Any | None = None,
+    mode: str | None = None,
+) -> Any:
     """Penalize disagreement between end-effector poses during synchronized phases."""
 
     _require_torch()
+    _ = mode  # Mode flag reserved for future extensions.
+    if phase_mask is None and phase is not None:
+        phase_mask = phase
     diff = ee_a - ee_b
     sq = diff.pow(2).sum(dim=-1)
     if phase_mask is not None:
@@ -80,7 +100,7 @@ def compute_behavior_cloning_losses(
 
     if weights.get("sync", 0.0) > 0 and "ee_pose_a" in batch and "ee_pose_b" in batch:
         phase_mask = batch.get("sync_mask")
-        sync = sync_loss(batch["ee_pose_a"], batch["ee_pose_b"], phase_mask)
+        sync = sync_loss(batch["ee_pose_a"], batch["ee_pose_b"], phase_mask=phase_mask)
         loss_dict["sync"] = sync
         total = total + weights["sync"] * sync
 
@@ -94,6 +114,7 @@ def compute_behavior_cloning_losses(
 
 
 def _tensor_device(outputs: Mapping[str, Any]) -> torch.device:
+    _require_torch()
     for value in outputs.values():
         if torch.is_tensor(value):
             return value.device

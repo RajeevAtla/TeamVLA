@@ -12,14 +12,18 @@ import numpy as np
 from envs import NewtonMAEnv
 
 try:  # pragma: no cover - optional torch dependency
-    import torch
+    import torch as _torch
 except ImportError:  # pragma: no cover
-    torch = None
+    _torch = cast(Any, None)
 
-try:  # pragma: no cover - optional torch dependency
+if TYPE_CHECKING:  # pragma: no cover - only for static analysis
     from models.vla_singlebrain import SingleBrainVLA
-except ImportError:  # pragma: no cover
-    SingleBrainVLA = None  # type: ignore
+else:  # pragma: no cover - runtime shims when optional deps are missing
+    torch = cast(Any, _torch)
+    try:
+        from models.vla_singlebrain import SingleBrainVLA
+    except ImportError:  # pragma: no cover
+        SingleBrainVLA = cast(Any, None)
 
 
 @dataclass(slots=True)
@@ -66,8 +70,9 @@ def run_demo_episode(instruction: str, *, cfg: DemoConfig | None = None) -> dict
     try:
         for _ in range(cfg.max_steps):
             acts = policy(obs)
-            actions_log.append([float(x) for x in acts[0]])
-            obs, _rewards, done, info = env.step(acts)
+            step_actions = [[float(x) for x in action] for action in acts]
+            actions_log.append(step_actions[0])
+            obs, _rewards, done, info = env.step(step_actions)
             if done:
                 break
     finally:

@@ -3,25 +3,40 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from typing import Any
-
-try:  # pragma: no cover - optional torch dependency
-    import torch
-    import torch.nn as nn
-except ImportError:  # pragma: no cover
-    torch = None
-    nn = None
+from typing import TYPE_CHECKING, Any, cast
 
 from models.encoders.language import build_text_encoder, forward_text, tokenize
 from models.encoders.vision import build_vision_encoder
+from typing import Any
 
+try:  # pragma: no cover - optional torch dependency
+    import torch as _torch
+    import torch.nn as _nn
+except ImportError:  # pragma: no cover
+    _torch = cast(Any, None)
+    _nn = cast(Any, None)
+
+if TYPE_CHECKING:  # pragma: no cover - only for static analysis
+    import torch
+    import torch.nn as nn
+else:  # pragma: no cover - runtime shim when torch is optional
+    torch = cast(Any, _torch)
+    nn = cast(Any, _nn)
+
+_TORCH_AVAILABLE = _torch is not None and _nn is not None
+
+class _StubBaseModule:
+    """Fallback module base when torch is unavailable."""
+
+
+_BaseModule: type[Any] = cast(type[Any], _nn.Module if _TORCH_AVAILABLE else _StubBaseModule)
 
 def _require_torch() -> None:
-    if torch is None or nn is None:  # pragma: no cover
+    if not _TORCH_AVAILABLE:  # pragma: no cover
         raise ImportError("PyTorch is required for VLA models.")
 
 
-class SingleBrainVLA(nn.Module if nn is not None else object):
+class SingleBrainVLA(_BaseModule):
     """Lightweight single-brain policy approximator."""
 
     def __init__(self, cfg: Mapping[str, Any]) -> None:
@@ -127,7 +142,7 @@ class SingleBrainVLA(nn.Module if nn is not None else object):
 
     def _batch_from_observations(
         self, obs: Sequence[Mapping[str, Any]], *, device: torch.device
-    ) -> dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor | dict[str, torch.Tensor]]:
         obs_a, obs_b = obs
         rgb_a = torch.tensor(
             obs_a.get("rgb", obs_a.get("rgb_a")), dtype=torch.float32, device=device

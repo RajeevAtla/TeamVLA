@@ -38,17 +38,25 @@ def time_to_success(traj: Mapping[str, object]) -> float | None:
 def coordination_score(traj: Mapping[str, object], epsilon: float = 0.0) -> float:
     """Compute the fraction of steps satisfying a coordination threshold."""
 
-    contacts = traj.get("coordination", [])
-    if not contacts:
+    contacts_obj = traj.get("coordination")
+    if contacts_obj is None:
         return 0.0
+    if not isinstance(contacts_obj, Sequence):
+        return 0.0
+    contacts = cast(Sequence[Any], contacts_obj)
     satisfying = sum(1 for value in contacts if float(value) >= 1.0 - epsilon)
-    return satisfying / len(contacts)
+    return satisfying / len(contacts) if contacts else 0.0
 
 
 def collision_cost(traj: Mapping[str, object]) -> float:
     """Return average collision magnitude for a trajectory."""
 
-    penalties = traj.get("collisions", [])
+    penalties_obj = traj.get("collisions")
+    if penalties_obj is None:
+        return 0.0
+    if not isinstance(penalties_obj, Sequence):
+        return 0.0
+    penalties = cast(Sequence[Any], penalties_obj)
     if not penalties:
         return 0.0
     return float(sum(abs(float(value)) for value in penalties) / len(penalties))

@@ -4,14 +4,32 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any, cast
 from typing import Any
 
 try:  # pragma: no cover - optional torch dependency
+    import torch as _torch
+    import torch.nn as _nn
+except ImportError:  # pragma: no cover
+    _torch = cast(Any, None)
+    _nn = cast(Any, None)
+
+if TYPE_CHECKING:  # pragma: no cover - only for static analysis
     import torch
     import torch.nn as nn
-except ImportError:  # pragma: no cover
-    torch = None
-    nn = None
+else:  # pragma: no cover - runtime shims when torch is optional
+    torch = cast(Any, _torch)
+    nn = cast(Any, _nn)
+
+_TORCH_AVAILABLE = _torch is not None and _nn is not None
+
+class _StubVisionModule:
+    """Fallback base class when torch is unavailable."""
+
+
+_BaseVisionModule: type[Any] = cast(
+    type[Any], _nn.Module if _TORCH_AVAILABLE else _StubVisionModule
+)
 
 
 @dataclass(slots=True)
@@ -69,11 +87,11 @@ def forward_vision(encoder: Any, images: Any) -> Any:
 
 
 def _require_torch() -> None:
-    if torch is None or nn is None:  # pragma: no cover - guard branch
+    if not _TORCH_AVAILABLE:  # pragma: no cover - guard branch
         raise ImportError("PyTorch is required to use the vision encoders.")
 
 
-class _ConvVisionEncoder(nn.Module if nn is not None else object):
+class _ConvVisionEncoder(_BaseVisionModule):
     """Simple convolutional encoder with adaptive pooling and linear projection."""
 
     def __init__(self, cfg: VisionEncoderConfig) -> None:

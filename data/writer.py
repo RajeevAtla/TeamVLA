@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 from dataclasses import asdict
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -100,7 +100,7 @@ class EpisodeWriter:
 
     def _generate_episode_id(self) -> str:
         self._episode_counter += 1
-        timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")
         return f"{self._episode_prefix}_{timestamp}_{self._episode_counter:04d}"
 
     def _finalize_meta(self, meta: EpisodeMeta, success: bool | None) -> EpisodeMeta:
@@ -117,15 +117,13 @@ class EpisodeWriter:
         if self._fmt != "npz":
             raise ValueError(f"Unsupported episode format '{self._fmt}'.")
         steps_list = list(steps)
-        payload = {
-            "meta": asdict(meta),
-            "steps": np.array(steps_list, dtype=object),
-        }
+        meta_payload = asdict(meta)
+        steps_array = np.array(steps_list, dtype=object)
         path = self._episode_path(meta)
         if self._compress:
-            np.savez_compressed(path, **payload)
+            np.savez_compressed(path, meta=cast(Any, meta_payload), steps=steps_array)
         else:
-            np.savez(path, **payload)
+            np.savez(path, meta=cast(Any, meta_payload), steps=steps_array)
         return path
 
     def _episode_path(self, meta: EpisodeMeta) -> Path:

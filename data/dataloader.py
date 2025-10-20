@@ -13,6 +13,13 @@ from data.schema import EpisodeMeta, validate_episode_meta
 
 Transform = Callable[[dict[str, Any]], dict[str, Any]]
 
+if TYPE_CHECKING:  # pragma: no cover - only for static analysis
+    from torch.utils.data import Dataset as _TorchDataset
+
+    _DatasetBase = _TorchDataset[dict[str, Any]]
+else:  # pragma: no cover - torch is optional at runtime
+    _DatasetBase = object
+
 
 @dataclass(slots=True)
 class _EpisodeRecord:
@@ -27,7 +34,7 @@ class _StepRef:
     index: int
 
 
-class MultiTaskDataset:
+class MultiTaskDataset(_DatasetBase):
     """PyTorch-style dataset that iterates over multi-task episodes."""
 
     def __init__(

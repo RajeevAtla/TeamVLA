@@ -4,14 +4,32 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any, cast
 from typing import Any
 
 try:  # pragma: no cover - optional torch dependency
+    import torch as _torch
+    import torch.nn as _nn
+except ImportError:  # pragma: no cover
+    _torch = cast(Any, None)
+    _nn = cast(Any, None)
+
+if TYPE_CHECKING:  # pragma: no cover - only for static analysis
     import torch
     import torch.nn as nn
-except ImportError:  # pragma: no cover
-    torch = None
-    nn = None
+else:  # pragma: no cover - runtime shims when torch is optional
+    torch = cast(Any, _torch)
+    nn = cast(Any, _nn)
+
+_TORCH_AVAILABLE = _torch is not None and _nn is not None
+
+class _StubTextModule:
+    """Fallback base class when torch is unavailable."""
+
+
+_BaseTextModule: type[Any] = cast(
+    type[Any], _nn.Module if _TORCH_AVAILABLE else _StubTextModule
+)
 
 
 @dataclass(slots=True)
@@ -78,11 +96,11 @@ def forward_text(encoder: Any, tokens: Mapping[str, Any]) -> Any:
 
 
 def _require_torch() -> None:
-    if torch is None or nn is None:  # pragma: no cover
+    if not _TORCH_AVAILABLE:  # pragma: no cover
         raise ImportError("PyTorch is required to use the language encoders.")
 
 
-class _GRUTextEncoder(nn.Module if nn is not None else object):
+class _GRUTextEncoder(_BaseTextModule):
     """Gated recurrent unit encoder producing pooled features."""
 
     def __init__(self, cfg: TextEncoderConfig) -> None:

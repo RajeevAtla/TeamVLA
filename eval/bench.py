@@ -10,9 +10,14 @@ from pathlib import Path
 from typing import Any
 
 try:  # pragma: no cover - optional torch dependency
-    import torch
+    import torch as _torch
 except ImportError:  # pragma: no cover
-    torch = None
+    _torch = cast(Any, None)
+
+if TYPE_CHECKING:  # pragma: no cover - only for static analysis
+    import torch
+else:  # pragma: no cover - runtime shim when torch is optional
+    torch = cast(Any, _torch)
 
 from envs import NewtonMAEnv
 from eval.metrics import aggregate_results
@@ -21,7 +26,7 @@ from eval.rollouts import run_suite
 try:  # pragma: no cover - optional torch dependency
     from models.vla_singlebrain import SingleBrainVLA
 except ImportError:  # pragma: no cover
-    SingleBrainVLA = None  # type: ignore
+    SingleBrainVLA = cast(Any, None)
 
 LOGGER = logging.getLogger(__name__)
 
