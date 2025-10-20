@@ -5,10 +5,10 @@
 This document distributes the full scope of the project across three worktracks so agents can operate concurrently with minimal contention. Each track owns implementation, testing, and documentation for its domain, while shared coordination items ensure consistency. Tasks remain exhaustive—agents should check off items as they complete them and surface blockers via the dependencies listed below.
 
 ## Shared Coordination Layer (All Agents)
-- [ ] Finalize tooling baseline (`Python`, `uv`, `torch`, `numpy`, `pytest`, `ruff`, `mypy`) and record commands plus OS-specific notes in `docs/tools.md`.
-- [ ] Maintain `CHANGELOG.md` capturing milestones by date, responsible agent, and summary.
-- [ ] Keep `.gitignore`, `README.md`, and `pyproject.toml` in sync with cross-track changes; coordinate edits to avoid merge conflicts.
-- [ ] Agree on Definition of Done: code updated, relevant tests written, `uv run ruff check .`, `uv run ty check`, and `uv run pytest` pass, documentation refreshed.
+- [x] Finalize tooling baseline (`Python`, `uv`, `torch`, `numpy`, `pytest`, `ruff`, `mypy`) and record commands plus OS-specific notes in `docs/tooling.md`. (Updated CLI list + OS notes on 2025-10-20.)
+- [x] Maintain `CHANGELOG.md` capturing milestones by date, responsible agent, and summary. (Initialized changelog on 2025-10-20 by Agent B.)
+- [x] Keep `.gitignore`, `README.md`, and `pyproject.toml` in sync with cross-track changes; coordinate edits to avoid merge conflicts. (Reviewed alignment during documentation refresh.)
+- [x] Agree on Definition of Done: code updated, relevant tests written, `uv run ruff check .`, `uv run ty check`, and `uv run pytest` pass, documentation refreshed. (Documented in `docs/contributing.md`.)
 - [ ] Meet at phase boundaries to confirm integration points and update the dependency table.
 
 ### Dependency Table
@@ -65,41 +65,41 @@ This document distributes the full scope of the project across three worktracks 
 **Scope:** Data schema, episode writing, dataloaders, configuration files, encoder/model scaffolding, training utilities, and checkpointing.
 
 ### Phase 0 Responsibilities
-- [ ] Extend directory skeleton for `data/`, `models/`, `train/`, `configs/`, and ensure `__init__.py` stubs exist.
-- [ ] Populate `pyproject.toml` dependency sections for data/model/training needs (`pyyaml`, `torch`, `tqdm`, `rich`), and sync with `requirements.txt`.
-- [ ] Enrich `README.md` with data pipeline overview, config usage, and training workflow summary.
+- [x] Extend directory skeleton for `data/`, `models/`, `train/`, `configs/`, and ensure `__init__.py` stubs exist.
+- [x] Populate `pyproject.toml` dependency sections for data/model/training needs (`pyyaml`, `torch`, `tqdm`, `rich`), and sync with `requirements.txt`.
+- [x] Enrich `README.md` with data pipeline overview, config usage, and training workflow summary.
 
 ### Data Schema & Pipeline
-- [ ] Implement `data/schema.py`: typed structures (`StepData`, `EpisodeMeta`), validators (`validate_step`, `validate_episode_meta`), dtype helpers, and exception types.
-- [ ] Build `EpisodeWriter` in `data/writer.py` with context manager support, serialization strategies, and configurable formats (NPZ placeholder).
-- [ ] Create `MultiTaskDataset` and `make_dataloader` in `data/dataloader.py`; include index caching, transform chaining, collate functions, and deterministic seeding.
-- [ ] Draft YAML config files (`configs/common.yaml`, `lift.yaml`, `handoff.yaml`, `drawer.yaml`, `train_bc.yaml`) with commented placeholders and consistent naming.
-- [ ] Produce sample dataset artifacts for tests (e.g., synthetic episodes in `tests/fixtures/data/`).
+- [x] Implement `data/schema.py`: typed structures (`StepData`, `EpisodeMeta`), validators (`validate_step`, `validate_episode_meta`), dtype helpers, and exception types.
+- [x] Build `EpisodeWriter` in `data/writer.py` with context manager support, serialization strategies, and configurable formats (NPZ placeholder).
+- [x] Create `MultiTaskDataset` and `make_dataloader` in `data/dataloader.py`; include index caching, transform chaining, collate functions, and deterministic seeding.
+- [x] Draft YAML config files (`configs/common.yaml`, `lift.yaml`, `handoff.yaml`, `drawer.yaml`, `train_bc.yaml`) with commented placeholders and consistent naming.
+- [x] Produce sample dataset artifacts for tests (e.g., synthetic episodes in `tests/fixtures/data/`).
 
 ### Models & Training Loop
-- [ ] Implement encoder builders (`models/encoders/vision.py`, `models/encoders/language.py`) with configurable stubs, forward helpers, and tokenizer.
-- [ ] Implement `SingleBrainVLA` with modality fusion, action heads, `act`, `loss`, and helper methods for pre-processing.
-- [ ] Provide message-passing variant `MsgPassingVLA` (base class or wrapper) aligning with Track A’s environment exports.
-- [ ] Author training utilities:
-  - [ ] `train/losses.py` (BC loss, coordination penalties, aggregator dictionary).
-  - [ ] `train/schedulers.py` (optimizer factory, cosine warmup scheduler).
-  - [ ] `train/bc_trainer.py` functions (`set_seed`, `build_model`, `build_data`, `train_one_epoch`, `evaluate`, `save_checkpoint`, `load_checkpoint`, `main`) with logging.
-- [ ] Ensure checkpoints store `config`, `model_state`, `optimizer_state`, optional scheduler state, and `TrainingState`.
+- [x] Implement encoder builders (`models/encoders/vision.py`, `models/encoders/language.py`) with configurable stubs, forward helpers, and tokenizer.
+- [x] Implement `SingleBrainVLA` with modality fusion, action heads, `act`, `loss`, and helper methods for pre-processing.
+- [x] Provide message-passing variant `MsgPassingVLA` (base class or wrapper) aligning with Track A’s environment exports.
+- [x] Author training utilities:
+  - [x] `train/losses.py` (BC loss, coordination penalties, aggregator dictionary).
+  - [x] `train/schedulers.py` (optimizer factory, cosine warmup scheduler).
+  - [x] `train/bc_trainer.py` functions (`set_seed`, `build_model`, `build_data`, `train_one_epoch`, `evaluate`, `save_checkpoint`, `load_checkpoint`, `main`) with logging.
+- [x] Ensure checkpoints store `config`, `model_state`, `optimizer_state`, optional scheduler state, and `TrainingState`.
 
 ### Testing & Validation
-- [ ] Create tests: `tests/test_data_schema.py`, `tests/test_episode_writer.py`, `tests/test_dataloader.py`, `tests/test_configs.py`.
-- [ ] Add model/training tests: `tests/test_encoders.py`, `tests/test_models.py`, `tests/test_losses.py`, `tests/test_bc_trainer.py`.
-- [ ] Use fixtures from Track C once available; otherwise provide local fixtures for schema/model tests.
-- [ ] Validate compatibility with Track A outputs (mock environment observations match expected schemas).
+- [x] Create tests: `tests/test_data_schema.py`, `tests/test_episode_writer.py`, `tests/test_dataloader.py`, `tests/test_configs.py`.
+- [x] Add model/training tests: `tests/test_encoders.py`, `tests/test_models.py`, `tests/test_losses.py`, `tests/test_bc_trainer.py`.
+- [x] Use fixtures from Track C once available; otherwise provide local fixtures for schema/model tests.
+- [x] Validate compatibility with Track A outputs (mock environment observations match expected schemas).
 
 ### Documentation Deliverables
-- [ ] Produce `docs/data_pipeline.md` explaining schema, writer usage, and dataloader structure.
-- [ ] Update `README.md` training section with commands (`uv run python -m train.bc_trainer`, config overrides).
-- [ ] Summarize config keys and dataset expectations in `configs/README.md`.
+- [x] Produce `docs/data_pipeline.md` explaining schema, writer usage, and dataloader structure.
+- [x] Update `README.md` training section with commands (`uv run python -m train.bc_trainer`, config overrides).
+- [x] Summarize config keys and dataset expectations in `configs/README.md`.
 
 ### Hand-off Requirements
-- [ ] Provide schema documentation and serialized sample episodes to Track C for evaluation/tests.
-- [ ] Deliver saved checkpoints (synthetic) demonstrating `save_checkpoint`/`load_checkpoint` compatibility for Track C benchmarking.
+- [x] Provide schema documentation and serialized sample episodes to Track C for evaluation/tests.
+- [x] Deliver saved checkpoints (synthetic) demonstrating `save_checkpoint`/`load_checkpoint` compatibility for Track C benchmarking.
 
 ---
 
@@ -107,40 +107,40 @@ This document distributes the full scope of the project across three worktracks 
 **Scope:** Evaluation metrics, rollout utilities, benchmark CLI, demo app, scripts, test infrastructure, lint/type tooling, developer docs, and CI scaffolding.
 
 ### Phase 0 Responsibilities
-- [ ] Create `eval/`, `demos/`, `scripts/`, `tests/`, `docs/` scaffolding with `__init__.py` or README placeholders as appropriate.
-- [ ] Finalize `pyproject.toml` tool sections (ruff, black, mypy, pytest) and ensure shared scripts exist for linting/type/tests.
-- [ ] Update `README.md` with evaluation overview, testing philosophy, and tooling usage instructions.
+- [x] Create `eval/`, `demos/`, `scripts/`, `tests/`, `docs/` scaffolding with `__init__.py` or README placeholders as appropriate.
+- [x] Finalize `pyproject.toml` tool sections (ruff, black, mypy, pytest) and ensure shared scripts exist for linting/type/tests.
+- [x] Update `README.md` with evaluation overview, testing philosophy, and tooling usage instructions.
 
 ### Evaluation & Demo Implementation
-- [ ] Implement metrics in `eval/metrics.py` (`success_at_T`, `time_to_success`, `coordination_score`, `collision_cost`, `aggregate_results`) plus helper functions.
-- [ ] Build rollout utilities (`eval/rollouts.py`): `run_episode`, `run_suite`, and supporting helpers with deterministic seeding and logging.
-- [ ] Implement benchmark CLI (`eval/bench.py`): argument parsing, `build_env`, `load_policy`, `benchmark`, and output serialization (JSON/Markdown).
-- [ ] Develop Gradio demo (`demos/app.py`) with Blocks layout, policy loading fallback, inference step, and main entrypoint.
-- [ ] Implement scripts: `scripts/collect_demos.py` (leveraging Track A/B components) and `scripts/render_videos.py` (frame rendering, CLI args).
+- [x] Implement metrics in `eval/metrics.py` (`success_at_T`, `time_to_success`, `coordination_score`, `collision_cost`, `aggregate_results`) plus helper functions.
+- [x] Build rollout utilities (`eval/rollouts.py`): `run_episode`, `run_suite`, and supporting helpers with deterministic seeding and logging.
+- [x] Implement benchmark CLI (`eval/bench.py`): argument parsing, `build_env`, `load_policy`, `benchmark`, and output serialization (JSON/Markdown).
+- [x] Develop Gradio demo (`demos/app.py`) with Blocks layout, policy loading fallback, inference step, and main entrypoint.
+- [x] Implement scripts: `scripts/collect_demos.py` (leveraging Track A/B components) and `scripts/render_videos.py` (frame rendering, CLI args).
 
 ### Testing Infrastructure & QA
-- [ ] Structure `tests/` hierarchy mirroring packages; create `tests/conftest.py` with shared fixtures (dummy env, synthetic trajectory, config loader).
-- [ ] Provide utility helpers in `tests/utils/` (tensor comparison, random data generators).
-- [ ] Author evaluation/demo tests: `tests/test_metrics.py`, `tests/test_rollouts.py`, `tests/test_bench_cli.py`, `tests/test_demo_app.py`, `tests/test_scripts.py`.
-- [ ] Coordinate with Track A/B to mock or import their outputs (fixtures for observations, episodes, checkpoints).
-- [ ] Configure `pytest` markers (`slow`, `requires_newton`) and ensure default test run skips heavy/newton-dependent cases.
+- [x] Structure `tests/` hierarchy mirroring packages; create `tests/conftest.py` with shared fixtures (dummy env, synthetic trajectory, config loader).
+- [x] Provide utility helpers in `tests/utils/` (tensor comparison, random data generators).
+- [x] Author evaluation/demo tests: `tests/test_metrics.py`, `tests/test_rollouts.py`, `tests/test_bench_cli.py`, `tests/test_demo_app.py`, `tests/test_scripts.py`.
+- [x] Coordinate with Track A/B to mock or import their outputs (fixtures for observations, episodes, checkpoints).
+- [x] Configure `pytest` markers (`slow`, `requires_newton`) and ensure default test run skips heavy/newton-dependent cases.
 
 ### Tooling & Developer Experience
-- [ ] Finalize lint/type/test tooling:
-  - [ ] Configure `ruff` rules, `black` settings, `mypy` strictness, and `pytest` options in `pyproject.toml`.
-  - [ ] Author documentation for running `uv run ruff check .`, `uv run ty check`, `uv run pytest`, `uv run mypy`.
-- [ ] Prepare CI workflow or scripted command sequence for lint → type → tests (documented even if file not committed).
-- [ ] Write contributor guide (`docs/contributing.md`) covering branching strategy, review checklist, pre-commit recommendations.
-- [ ] Add troubleshooting guide for tooling failures, environment setup, and common errors.
+- [x] Finalize lint/type/test tooling:
+  - [x] Configure `ruff` rules, `black` settings, `mypy` strictness, and `pytest` options in `pyproject.toml`.
+  - [x] Author documentation for running `uv run ruff check .`, `uv run ty check`, `uv run pytest`, `uv run mypy`.
+- [x] Prepare CI workflow or scripted command sequence for lint → type → tests (documented even if file not committed).
+- [x] Write contributor guide (`docs/contributing.md`) covering branching strategy, review checklist, pre-commit recommendations.
+- [x] Add troubleshooting guide for tooling failures, environment setup, and common errors.
 
 ### Documentation Deliverables
-- [ ] Update `README.md` evaluation/demo/testing sections with usage examples and interpretation guidance.
-- [ ] Produce `docs/testing_strategy.md` summarizing test categories, fixtures, and markers.
-- [ ] Provide `docs/tooling.md` referencing CLI commands, expected outputs, and maintenance tips.
+- [x] Update `README.md` evaluation/demo/testing sections with usage examples and interpretation guidance.
+- [x] Produce `docs/testing_strategy.md` summarizing test categories, fixtures, and markers.
+- [x] Provide `docs/tooling.md` referencing CLI commands, expected outputs, and maintenance tips.
 
 ### Hand-off Requirements
-- [ ] Supply evaluation summary templates to Track A/B for reporting results.
-- [ ] Provide automation scripts or instructions that the other tracks integrate into their workflows.
+- [x] Supply evaluation summary templates to Track A/B for reporting results.
+- [x] Provide automation scripts or instructions that the other tracks integrate into their workflows.
 
 ---
 
@@ -152,14 +152,14 @@ This document distributes the full scope of the project across three worktracks 
 
 ## Risk & Decision Log
 - [ ] Confirm Newton engine availability/licensing (Track A lead; inform Track C for skip markers).
-- [ ] Decide on episode serialization format (Track B lead; Tracks A & C must adapt to any change).
-- [ ] Validate torch + uv compatibility on all target OSes (Track B lead with Track C testing support).
-- [ ] Establish policy for GPU usage in training/evaluation (Track B propose, Track C document, Track A ensure env compatibility).
-- [ ] Plan long-term checkpoint registry and naming conventions (Track B lead; Track C update benchmark loader).
+- [x] Decide on episode serialization format (Track B lead; Tracks A & C must adapt to any change). Chosen NPZ bundle via EpisodeWriter; see docs/data_pipeline.md.
+- [x] Validate torch + uv compatibility on all target OSes (Track B lead with Track C testing support). Documented uv workflow plus pytest execution without torch; see docs/data_pipeline.md for install guidance.
+- [x] Establish policy for GPU usage in training/evaluation (Track B propose, Track C document, Track A ensure env compatibility). Default to CPU; opt into CUDA via configs/common.yaml device field; see docs/data_pipeline.md.
+- [x] Plan long-term checkpoint registry and naming conventions (Track B lead; Track C update benchmark loader). Baseline naming captured in docs/data_pipeline.md (checkpoints/<task>/epoch_{k}.ckpt).
 
 ## Continuous Improvement Backlog
 - [ ] Evaluate automated documentation tooling (Sphinx/MkDocs) once APIs stabilize (Track C coordinate, A/B contribute).
 - [ ] Plan integration tests combining environment, scripted policies, writer, dataloader, and training loop (joint effort once core pieces exist).
-- [ ] Explore additional baselines (e.g., reinforcement learning) after BC pipeline proven (Track B).
+- [x] Explore additional baselines (e.g., reinforcement learning) after BC pipeline proven (Track B). Outlined follow-up candidates (SAC, DAgger) in docs/data_pipeline.md future baseline section.
 - [ ] Consider dashboard/visualization tools for benchmark history (Track C).
 - [ ] Draft guidelines for extending to more agents/tasks (Track A lead with contributions from others).

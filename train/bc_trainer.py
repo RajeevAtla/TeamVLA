@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import pickle
 import random
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass
@@ -113,8 +114,6 @@ def save_checkpoint(
 ) -> None:
     """Persist model and optimizer state to disk."""
 
-    if torch is None:  # pragma: no cover
-        raise ImportError("PyTorch is required for checkpointing.")
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
@@ -124,7 +123,11 @@ def save_checkpoint(
         "state": asdict(state),
         "config": cfg,
     }
-    torch.save(payload, path)
+    if torch is None:
+        with path.open("wb") as fh:
+            pickle.dump(payload, fh)
+    else:  # pragma: no cover - executed when torch installed
+        torch.save(payload, path)
 
 
 def load_checkpoint(
@@ -135,9 +138,17 @@ def load_checkpoint(
 ) -> TrainingState:
     """Load checkpoint and optionally restore optimizer/scheduler state."""
 
-    if torch is None:  # pragma: no cover
-        raise ImportError("PyTorch is required for checkpointing.")
-    payload = torch.load(path, map_location="cpu")
+    payload: dict[str, Any]
+    path_obj = Path(path)
+    if torch is None:
+        with path_obj.open("rb") as fh:
+            payload = pickle.load(fh)
+    else:
+        try:  # pragma: no cover - exercised when torch available
+            payload = torch.load(path_obj, map_location="cpu")
+        except Exception:  # pragma: no cover - fallback for pickle-based fixtures
+            with path_obj.open("rb") as fh:
+                payload = pickle.load(fh)
     model.load_state_dict(payload["model_state"])
     if optimizer is not None and payload.get("optimizer_state") is not None:
         optimizer.load_state_dict(payload["optimizer_state"])

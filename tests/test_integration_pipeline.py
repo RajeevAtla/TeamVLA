@@ -5,12 +5,15 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from control.phase_machine import PhaseMachine, phase_signals_from_state
 from control.scripted import scripted_lift_policy
 from data.dataloader import MultiTaskDataset
 from data.writer import EpisodeWriter
 from envs.core_env import NewtonMAEnv
+
+pytestmark = pytest.mark.slow
 
 
 def test_end_to_end_collection_and_loading(tmp_path: Path) -> None:

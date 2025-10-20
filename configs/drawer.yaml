@@ -1,9 +1,18 @@
+# Canonical task identifier shared with schema EpisodeMeta.
 task: drawer
+
 randomization:
+  # Lateral drawer offset sampled per episode (metres).
   drawer_offset: [-0.02, 0.02]
+  # Handle tilt jitter in degrees to test robustness.
   handle_tilt: [-5.0, 5.0]
+
 reward_weights:
+  # Penalises asymmetric arm poses when grasping the handle.
   symmetry: 1.0
+  # Reward shaping weight for how far the drawer is opened.
   open_distance: 4.0
+
 controller:
+  # Optional waypoint library supplied by Track A (null uses deterministic defaults).
   waypoint_file: null

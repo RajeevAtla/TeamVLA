@@ -1,28 +1,50 @@
+#########################
+# Behaviour Cloning Run #
+#########################
+
+# Global random seed for dataloaders, numpy, and torch.
 seed: 7
+
 dataset:
+  # Episode roots grouped by task; MultiTaskDataset scans each directory.
   roots:
     - data/episodes/lift
     - data/episodes/handoff
     - data/episodes/drawer
+  # Optional whitelist of task slugs to include (null = all discovered tasks).
   tasks: [lift, handoff, drawer]
+  # Limit episodes per task to balance datasets (null keeps all episodes).
   limit_per_task: null
+  # Passed through to torch.utils.data.DataLoader.
   batch_size: 8
   shuffle: true
   num_workers: 0
   drop_last: false
+
 model:
+  # Policy backbone variant (`single_brain` or `msg_passing`).
   type: single_brain
+  # Hidden dimensionality of the fusion tower.
   hidden_dim: 512
+  # Dropout applied after fusion layers for regularisation.
   dropout: 0.1
+  # Action dimensionality exposed per arm (matches env action space).
   action_dim: 4
+
 optimizer:
+  # Optimiser factory name resolved in train.schedulers.make_optimizer.
   name: adamw
   lr: 0.0001
   weight_decay: 0.01
+
 scheduler:
+  # Warm-up period before cosine decay (in optimiser steps).
   warmup_steps: 1000
+  # Total number of scheduler steps for cosine annealing.
   total_steps: 100000
+
 loss_weights:
+  # Component scaling for behaviour-cloning loss dictionary.
   actions: 1.0
   grip: 1.0
   sync: 0.1

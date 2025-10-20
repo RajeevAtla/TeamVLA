@@ -18,16 +18,28 @@ Thank you for helping build the TeamVLA benchmark. This document summarizes the 
   uv run pytest
   ```
 
-- Lint and format:
+- Lint, format, and type-check:
 
   ```bash
   uv run ruff check .
   uv run black --check .
+  uv run ty check
   uv run mypy .
   ```
 
 - Torch-heavy tests set `OMP_NUM_THREADS=1` via `tests/conftest.py` to keep runtimes predictable.
 - Mark Newton-dependent tests with `@pytest.mark.requires_newton` so they can be skipped when the engine is absent.
+- See `docs/tooling.md` for command sequencing and maintenance tips.
+
+## Definition of Done
+
+Every change should meet these criteria before hand-off:
+
+1. Code updated with relevant unit tests covering new behaviour.
+2. `uv run ruff check .`, `uv run black --check .`, `uv run ty check`, and `uv run pytest` all pass (run locally or via CI).
+3. Documentation touched (README, docs/, configs) reflects new interfaces, flags, or workflows.
+4. Dependencies recorded in both `pyproject.toml` and `requirements.txt` when introduced or updated.
+5. Planning backlog (`planning/planning.md`) updated to reflect progress and remaining work.
 
 ## Pull Request Checklist
 

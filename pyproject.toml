@@ -68,6 +68,7 @@ testpaths = [
 ]
 markers = [
   "requires_newton: marks tests that require the Newton physics runtime",
+  "slow: marks slower end-to-end or integration scenarios",
 ]
 
 [dependency-groups]

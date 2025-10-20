@@ -65,13 +65,14 @@ The interface runs scripted/environment rollouts and surfaces placeholder action
 ## 6. Test & Lint
 
 ```bash
-pytest
-ruff check .
-black --check .
-mypy .
+uv run ruff check .
+uv run black --check .
+uv run ty check
+uv run pytest
+uv run mypy .
 ```
 
-PyTorch-dependent tests call `pytest.importorskip("torch")`, so they are skipped automatically if Torch is missing.  Running the full suite on a Torch-enabled machine is strongly recommended before publishing changes.
+PyTorch-dependent tests call `pytest.importorskip("torch")`, so they are skipped automatically if Torch is missing.  Running the full suite on a Torch-enabled machine is strongly recommended before publishing changes. Consult `docs/tooling.md` and `docs/troubleshooting.md` for additional guidance.
 
 ## 7. Continuous Integration (Recommended)
 

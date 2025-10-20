@@ -1,9 +1,17 @@
+# Canonical task identifier shared with schema EpisodeMeta.
 task: handoff
+
 randomization:
+  # Source/target platform heights sampled per episode (metres).
   source_height: [0.1, 0.3]
   target_height: [0.1, 0.3]
+
 reward_weights:
+  # Encourage the hands to meet at the exchange waypoint.
   rendezvous: 1.5
+  # Promote successful object transfer and clearance.
   transfer: 3.0
+
 controller:
+  # Optional waypoint library supplied by Track A (null uses deterministic defaults).
   waypoint_file: null

@@ -52,10 +52,11 @@ Most packages now expose concrete functionality—encoders/models, scripted cont
 5. Run the tooling stack regularly (install `torch` and `pytest` locally for the full test suite):
    - `uv run pytest`
    - `uv run ruff check .`
-   - `uv run black .`
-   - `uv run mypy .`
+   - `uv run black --check .`
+   - `uv run ty check`
+   - `uv run mypy .` (for verbose type-debugging when needed)
 
-Refer to `docs/contributing.md` for the full contributor checklist and tooling expectations.
+Refer to `docs/contributing.md` and `docs/tooling.md` for the full contributor checklist and CLI references.
 
 ## Phase Roadmap
 
@@ -74,6 +75,7 @@ Consult the architecture overview (`planning/architecture.md`) and the prompt sc
 ## Data Collection & Training
 
 - **Environment & Control Interfaces**: See `docs/interfaces/env_control.md` for a field-by-field breakdown of observations, action vectors, and scripted policy outputs owned by the simulation/control track.
+- **Data Pipeline Contract**: `docs/data_pipeline.md` summarises schema expectations, episode writing, dataset transforms, and the artefacts Track B ships to the other teams.
 
 - Generate scripted demonstrations:
 
@@ -119,7 +121,9 @@ The unit suite now covers control, data, models, evaluation, scripts, and an end
 pytest
 ```
 
-Tests that rely on optional dependencies fall back gracefully if the packages are missing.  When authoring new tests, continue to mark Newton-dependent cases with `@pytest.mark.requires_newton`.
+Tests that rely on optional dependencies fall back gracefully if the packages are missing.  When authoring new tests, continue to mark Newton-dependent cases with `@pytest.mark.requires_newton` and use `pytest -m "not slow"` during quick iterations.
+
+See `docs/testing_strategy.md` for category breakdowns, fixtures, and evaluation summary templates. Troubleshooting tips live in `docs/troubleshooting.md`.
 
 ## License
 

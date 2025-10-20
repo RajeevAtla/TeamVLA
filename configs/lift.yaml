@@ -1,9 +1,18 @@
+# Canonical task identifier shared with schema EpisodeMeta.
 task: lift
+
 randomization:
+  # Range for uniformly sampling object scales during scripted data capture.
   object_scale: [0.9, 1.1]
+  # Range for sampling object mass in Newton (kg).
   object_mass: [0.5, 1.5]
+
 reward_weights:
+  # Reward shaping weight for gripper alignment with the cube.
   align: 1.0
+  # Reward shaping weight for target lift height.
   lift_height: 2.0
+
 controller:
+  # Optional waypoint library supplied by Track A (null uses deterministic defaults).
   waypoint_file: null

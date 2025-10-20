@@ -1,13 +1,25 @@
+# Global random seed used by trainers and data utilities.
 seed: 0
+
+# Default compute device for CPU-only scaffolding; override per-session if GPUs are available.
 device: cpu
+
 log:
+  # Logging verbosity for command-line tools (trainers, scripts, demos).
   level: INFO
+  # Directory where training runs and diagnostics are stored.
   dir: runs
+
 viewer:
+  # Toggle visual overlays when environments render (Track A integration point).
   enabled: false
   width: 640
   height: 480
-data:
+
+dataset:
+  # Root directory searched by MultiTaskDataset / EpisodeWriter.
   root: data/episodes
+  # Serialization format produced by data.writer.EpisodeWriter.
   format: npz
+  # Use np.savez_compressed when true; disable for profiling write speed.
   compress: true
