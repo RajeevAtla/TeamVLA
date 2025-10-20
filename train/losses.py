@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, cast
+from typing import Any
 
 try:  # pragma: no cover - optional torch dependency
     import torch as _torch

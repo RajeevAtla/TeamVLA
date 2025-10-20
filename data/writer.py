@@ -6,7 +6,7 @@ from collections.abc import Iterable, Mapping
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 import numpy as np
 

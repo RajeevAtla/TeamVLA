@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, MutableMapping
 from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import numpy as np
 from numpy.typing import NDArray
@@ -111,7 +112,7 @@ def clamp_action(delta_q: NDArray[np.float64], max_norm: float) -> NDArray[np.fl
 # ---------------------------------------------------------------------------#
 
 
-def _extract_position(state: StateLike, agent_id: int) -> NDArray[np.float64]:
+def _extract_position(state: Mapping[str, Any], agent_id: int) -> NDArray[np.float64]:
     """Support extracting positions from SimulationState, observations, or dicts."""
 
     key = f"agent_{agent_id}"

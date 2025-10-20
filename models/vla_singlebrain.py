@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from models.encoders.language import build_text_encoder, forward_text, tokenize
 from models.encoders.vision import build_vision_encoder
+from typing import Any
 
 try:  # pragma: no cover - optional torch dependency
     import torch as _torch

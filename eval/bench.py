@@ -7,7 +7,7 @@ import json
 import logging
 from collections.abc import Callable, Iterable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any
 
 try:  # pragma: no cover - optional torch dependency
     import torch as _torch

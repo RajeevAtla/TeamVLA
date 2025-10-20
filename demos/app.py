@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any
 
 import numpy as np
 
