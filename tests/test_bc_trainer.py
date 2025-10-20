@@ -6,9 +6,9 @@ from pathlib import Path
 
 import pytest
 
-torch = pytest.importorskip("torch")
-
 from train import bc_trainer, schedulers
+
+torch = pytest.importorskip("torch")
 
 
 class _DummyDataset(torch.utils.data.Dataset):

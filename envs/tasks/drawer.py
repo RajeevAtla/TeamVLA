@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -39,7 +40,7 @@ class DrawerTask:
     def phases(self) -> Sequence[str]:
         return self._phases
 
-    def reset(self, state: "SimulationState", rng: np.random.Generator) -> TaskMetadata:
+    def reset(self, state: SimulationState, rng: np.random.Generator) -> TaskMetadata:
         base_left = np.array([-0.14, -0.12, 0.1], dtype=np.float64)
         base_right = np.array([0.14, -0.12, 0.1], dtype=np.float64)
         jitter = rng.uniform(-0.01, 0.01, size=2)
@@ -93,7 +94,7 @@ class DrawerTask:
         }
         return TaskMetadata(phases=self._phases, extras=extras)
 
-    def reward(self, state: "SimulationState", phase: str) -> tuple[float, float]:
+    def reward(self, state: SimulationState, phase: str) -> tuple[float, float]:
         runtime = self._runtime(state)
         runtime.phase_flags.clear()
         if state.task_state.get("phase") != "hold":
@@ -173,7 +174,7 @@ class DrawerTask:
 
         return float(reward[0]), float(reward[1])
 
-    def success(self, state: "SimulationState") -> bool:
+    def success(self, state: SimulationState) -> bool:
         runtime = self._runtime(state)
         return bool(
             runtime.phase_flags.get("release")
@@ -184,7 +185,7 @@ class DrawerTask:
         _unused(obs, phase, agent_id)
         raise NotImplementedError("Scripted controllers live in control.scripted drawer module.")
 
-    def info(self, state: "SimulationState") -> Mapping[str, Any]:
+    def info(self, state: SimulationState) -> Mapping[str, Any]:
         runtime = self._runtime(state)
         phase_name = state.task_state.get("phase", self._phases[0])
         return {
@@ -195,7 +196,7 @@ class DrawerTask:
             "phase_complete": bool(runtime.phase_flags.get(phase_name)),
         }
 
-    def _runtime(self, state: "SimulationState") -> _DrawerRuntime:
+    def _runtime(self, state: SimulationState) -> _DrawerRuntime:
         runtime = state.task_state.setdefault("runtime", _DrawerRuntime())
         return runtime
 

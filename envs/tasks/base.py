@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Iterable, Mapping, Protocol, Sequence, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 TaskFactory = Callable[[], "TaskSpec"]
 
@@ -49,7 +50,7 @@ class TaskSpec(Protocol):
         """Return diagnostic information for logging/telemetry."""
 
 
-_TASK_REGISTRY: Dict[str, TaskFactory] = {}
+_TASK_REGISTRY: dict[str, TaskFactory] = {}
 
 
 def register_task(name: str, factory: TaskFactory) -> None:

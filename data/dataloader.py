@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Iterable, Mapping, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -39,7 +40,7 @@ class MultiTaskDataset:
     ) -> None:
         self._roots = [Path(root) for root in roots]
         self._transforms = _normalize_transforms(transforms)
-        self._task_filter = {task for task in tasks} if tasks else None
+        self._task_filter = set(tasks) if tasks else None
         self._limit_per_task = limit_per_task
         self._episodes = self._build_manifest()
         self._index = self._build_step_index(self._episodes)
@@ -88,7 +89,7 @@ class MultiTaskDataset:
         for record in records:
             per_task.setdefault(record.meta.task, []).append(record)
         limited: list[_EpisodeRecord] = []
-        for task, episodes in per_task.items():
+        for _task, episodes in per_task.items():
             limited.extend(episodes[:limit]) if limit else limited.extend(episodes)
         return sorted(limited, key=lambda rec: (rec.meta.task, rec.meta.episode_id))
 

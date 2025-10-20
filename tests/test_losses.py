@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-torch = pytest.importorskip("torch")
-
 from train import losses
+
+torch = pytest.importorskip("torch")
 
 
 def test_huber_action_loss_returns_scalar() -> None:

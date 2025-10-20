@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 import numpy as np
 from numpy.typing import NDArray
@@ -98,5 +99,5 @@ def _action_towards(current: NDArray[np.float64], target: NDArray[np.float64], g
 def _both_within(positions: Sequence[NDArray[np.float64]], targets: Sequence[NDArray[np.float64]], *, thresh: float) -> bool:
     return all(
         np.linalg.norm(pos - tgt) <= thresh
-        for pos, tgt in zip(positions, targets)
+        for pos, tgt in zip(positions, targets, strict=True)
     )

@@ -5,9 +5,9 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-torch = pytest.importorskip("torch")
-
 from models.vla_singlebrain import MsgPassingVLA, SingleBrainVLA
+
+torch = pytest.importorskip("torch")
 
 
 def _dummy_batch(batch_size: int = 2) -> dict[str, torch.Tensor]:

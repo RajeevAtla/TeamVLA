@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable, Iterable, Mapping, MutableMapping
 from dataclasses import dataclass, field
-from typing import Any, Callable, Iterable, List, Mapping, MutableMapping
+from typing import Any
 
 LOGGER = logging.getLogger(__name__)
 

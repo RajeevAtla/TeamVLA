@@ -5,17 +5,18 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+from collections.abc import Callable, Iterable
 from pathlib import Path
-from typing import Any, Callable, Iterable
+from typing import Any
 
 try:  # pragma: no cover - optional torch dependency
     import torch
 except ImportError:  # pragma: no cover
     torch = None
 
+from envs import NewtonMAEnv
 from eval.metrics import aggregate_results
 from eval.rollouts import run_suite
-from envs import NewtonMAEnv
 
 try:  # pragma: no cover - optional torch dependency
     from models.vla_singlebrain import SingleBrainVLA

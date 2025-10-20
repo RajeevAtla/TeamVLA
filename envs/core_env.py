@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import logging
-from typing import Any, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 from numpy.typing import NDArray
@@ -27,7 +28,7 @@ class EnvironmentConfig:
     max_steps: int = 200
 
     @classmethod
-    def from_mapping(cls, cfg: Mapping[str, Any]) -> "EnvironmentConfig":
+    def from_mapping(cls, cfg: Mapping[str, Any]) -> EnvironmentConfig:
         """Parse a configuration mapping into an EnvironmentConfig instance."""
 
         task_name = str(cfg.get("task_name", "lift"))
