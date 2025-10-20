@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import random
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, cast
 
@@ -121,7 +121,7 @@ def save_checkpoint(
         "model_state": model.state_dict(),
         "optimizer_state": optimizer.state_dict(),
         "scheduler_state": scheduler.state_dict() if scheduler is not None else None,
-        "state": state.__dict__,
+        "state": asdict(state),
         "config": cfg,
     }
     torch.save(payload, path)

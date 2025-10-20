@@ -6,6 +6,7 @@ import argparse
 import json
 import logging
 from collections.abc import Callable, Iterable
+from dataclasses import asdict
 from pathlib import Path
 from typing import Any, cast
 
@@ -119,7 +120,7 @@ def main(argv: list[str] | None = None) -> None:
     logging.info("Benchmark summary: %s", summary)
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(json.dumps(summary.__dict__, indent=2), encoding="utf-8")
+        args.output.write_text(json.dumps(asdict(summary), indent=2), encoding="utf-8")
 
 
 def _zero_policy(observations: list[dict[str, Any]]) -> list[list[float]]:

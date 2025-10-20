@@ -151,18 +151,20 @@ class NewtonMAEnv:
         if len(actions) != NUM_AGENTS:
             raise ValueError(f"Expected actions for exactly {NUM_AGENTS} agents.")
         for idx, action in enumerate(actions):
-            if not isinstance(action, Sequence):
-                raise TypeError(f"Action for agent {idx} must be a sequence.")
-            if len(action) < ACTION_SIZE:
-                raise ValueError(
-                    f"Action for agent {idx} must contain at least {ACTION_SIZE} elements."
-                )
+            try:
+                vector = np.asarray(action, dtype=np.float64).reshape(-1)
+            except Exception as exc:  # pragma: no cover - defensive branch
+                raise TypeError(f"Action for agent {idx} must be array-like.") from exc
+            if vector.size == 0:
+                raise ValueError(f"Action for agent {idx} must contain at least one element.")
 
     def _apply_actions(self, actions: Sequence[Sequence[float]]) -> None:
         for idx, action in enumerate(actions):
             agent = f"agent_{idx}"
             arm = self._state.arms[agent]
             vector = np.asarray(action, dtype=np.float64).reshape(-1)
+            if vector.size < ACTION_SIZE:
+                vector = np.pad(vector, (0, ACTION_SIZE - vector.size), constant_values=0.0)
             delta = np.clip(vector[:3], -self._model.action_limit, self._model.action_limit)
             new_position = np.clip(
                 arm.position + delta,
