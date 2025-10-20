@@ -67,8 +67,7 @@ def run_demo_episode(instruction: str, *, cfg: DemoConfig | None = None) -> dict
         for _ in range(cfg.max_steps):
             acts = policy(obs)
             action_seq = [
-                [float(x) for x in np.asarray(agent_action).reshape(-1)]
-                for agent_action in acts
+                [float(x) for x in np.asarray(agent_action).reshape(-1)] for agent_action in acts
             ]
             actions_log.append(action_seq[0])
             obs, _rewards, done, info = env.step(action_seq)
