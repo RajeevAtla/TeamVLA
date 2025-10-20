@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
-from typing import Iterable, Mapping, Sequence
 
 
 @dataclass(slots=True)
@@ -23,9 +23,7 @@ def success_at_T(trajs: Sequence[Mapping[str, object]], horizon: int) -> float:
     if not trajs:
         return 0.0
     successes = sum(
-        1
-        for traj in trajs
-        if bool(traj.get("success")) and int(traj.get("steps", 0)) <= horizon
+        1 for traj in trajs if bool(traj.get("success")) and int(traj.get("steps", 0)) <= horizon
     )
     return successes / len(trajs)
 
@@ -56,7 +54,9 @@ def collision_cost(traj: Mapping[str, object]) -> float:
     return float(sum(abs(float(value)) for value in penalties) / len(penalties))
 
 
-def aggregate_results(trajs: Iterable[Mapping[str, object]], horizon: int | None = None) -> TrajectoryStats:
+def aggregate_results(
+    trajs: Iterable[Mapping[str, object]], horizon: int | None = None
+) -> TrajectoryStats:
     """Aggregate per-episode metrics into averaged statistics."""
 
     trajs = list(trajs)
@@ -66,7 +66,9 @@ def aggregate_results(trajs: Iterable[Mapping[str, object]], horizon: int | None
     successes = [bool(traj.get("success")) for traj in trajs]
     success_rate = sum(successes) / len(trajs)
 
-    horizon_value = horizon if horizon is not None else max(int(traj.get("steps", 0)) for traj in trajs)
+    horizon_value = (
+        horizon if horizon is not None else max(int(traj.get("steps", 0)) for traj in trajs)
+    )
     sat = success_at_T(trajs, horizon=horizon_value)
 
     times = [time_to_success(traj) for traj in trajs]
@@ -83,4 +85,3 @@ def aggregate_results(trajs: Iterable[Mapping[str, object]], horizon: int | None
         coordination=coordination,
         collision=collision,
     )
-

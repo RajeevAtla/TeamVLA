@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import logging
+import random
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
+import numpy as np
 import yaml
 
 try:  # pragma: no cover - optional torch dependency
@@ -30,9 +33,6 @@ class TrainingState:
 
 def set_seed(seed: int) -> None:
     """Seed Python, NumPy, and PyTorch RNGs."""
-
-    import random
-    import numpy as np
 
     random.seed(seed)
     np.random.seed(seed)
@@ -150,7 +150,7 @@ def load_checkpoint(
 def main(cfg_path: str = "configs/train_bc.yaml") -> None:
     """Entry point for launching the training loop."""
 
-    with open(cfg_path, "r", encoding="utf-8") as handle:
+    with open(cfg_path, encoding="utf-8") as handle:
         cfg = yaml.safe_load(handle)
 
     logging.basicConfig(level=getattr(logging, cfg.get("log_level", "INFO")))

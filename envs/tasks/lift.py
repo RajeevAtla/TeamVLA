@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -40,7 +41,7 @@ class LiftTask:
     def phases(self) -> Sequence[str]:
         return self._phases
 
-    def reset(self, state: "SimulationState", rng: np.random.Generator) -> TaskMetadata:
+    def reset(self, state: SimulationState, rng: np.random.Generator) -> TaskMetadata:
         state.objects.clear()
         left = state.arms["agent_0"]
         right = state.arms["agent_1"]
@@ -80,7 +81,7 @@ class LiftTask:
         }
         return TaskMetadata(phases=self._phases, extras=extras)
 
-    def reward(self, state: "SimulationState", phase: str) -> tuple[float, float]:
+    def reward(self, state: SimulationState, phase: str) -> tuple[float, float]:
         runtime = self._runtime(state)
         cube = state.objects["payload"]
         left = state.arms["agent_0"]
@@ -92,7 +93,7 @@ class LiftTask:
             float(np.linalg.norm(right.position - cube.position)),
         )
         runtime.distances = distances
-        runtime.holders = ( "agent_0" in cube.holders, "agent_1" in cube.holders)
+        runtime.holders = ("agent_0" in cube.holders, "agent_1" in cube.holders)
         runtime.height = float(cube.position[2])
         runtime.xy_distance = float(
             np.linalg.norm(cube.position[:2] - state.task_state["target_xy"])
@@ -128,7 +129,7 @@ class LiftTask:
 
         return float(rewards[0]), float(rewards[1])
 
-    def success(self, state: "SimulationState") -> bool:
+    def success(self, state: SimulationState) -> bool:
         runtime = self._runtime(state)
         surface = state.task_state["surface_height"]
         return bool(
@@ -142,7 +143,7 @@ class LiftTask:
         _unused(obs, phase, agent_id)
         raise NotImplementedError("Scripted policies are provided in Phase 2.")
 
-    def info(self, state: "SimulationState") -> Mapping[str, Any]:
+    def info(self, state: SimulationState) -> Mapping[str, Any]:
         runtime = self._runtime(state)
         return {
             "task": self.name,
@@ -153,7 +154,7 @@ class LiftTask:
             "phase_complete": bool(runtime.phase_flags.get(state.task_state.get("phase", ""))),
         }
 
-    def _runtime(self, state: "SimulationState") -> _LiftRuntime:
+    def _runtime(self, state: SimulationState) -> _LiftRuntime:
         runtime = state.task_state.setdefault("runtime", _LiftRuntime())
         state.task_state["phase"] = state.task_state.get("phase", self._phases[0])
         return runtime

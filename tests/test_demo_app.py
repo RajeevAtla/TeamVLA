@@ -12,7 +12,12 @@ from demos import app
 
 def test_load_policy_returns_callable() -> None:
     policy = app.load_policy(None)
-    actions = policy([{"rgb": np.zeros((48, 48, 3), dtype=np.uint8)}, {"rgb": np.zeros((48, 48, 3), dtype=np.uint8)}])
+    actions = policy(
+        [
+            {"rgb": np.zeros((48, 48, 3), dtype=np.uint8)},
+            {"rgb": np.zeros((48, 48, 3), dtype=np.uint8)},
+        ]
+    )
     assert len(actions) == 2
 
 
@@ -39,4 +44,3 @@ def test_main_launches_interface(monkeypatch) -> None:
     monkeypatch.setitem(sys.modules, "gradio", fake_gradio)
     app.main()
     assert launch_called["flag"]
-

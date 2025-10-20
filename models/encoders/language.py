@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any
 
 try:  # pragma: no cover - optional torch dependency
     import torch
@@ -36,7 +37,9 @@ def build_text_encoder(
 
     if name != "gru":  # pragma: no cover - other variants can be added later
         raise ValueError(f"Unsupported text encoder '{name}'.")
-    cfg = config or TextEncoderConfig(vocab_size=vocab_size, d_model=d_model, num_layers=n_layers, dropout=dropout)
+    cfg = config or TextEncoderConfig(
+        vocab_size=vocab_size, d_model=d_model, num_layers=n_layers, dropout=dropout
+    )
     cfg = TextEncoderConfig(
         vocab_size=cfg.vocab_size,
         d_model=cfg.d_model,
@@ -58,7 +61,10 @@ def tokenize(
 
     _require_torch()
     vocab = vocab or _default_vocab(pad_token=pad_token, unk_token=unk_token)
-    tokens = [_encode_text(text, vocab, max_length, pad_token=pad_token, unk_token=unk_token) for text in texts]
+    tokens = [
+        _encode_text(text, vocab, max_length, pad_token=pad_token, unk_token=unk_token)
+        for text in texts
+    ]
     input_ids = torch.stack([token["input_ids"] for token in tokens])
     attention = torch.stack([token["attention_mask"] for token in tokens])
     return {"input_ids": input_ids, "attention_mask": attention}
@@ -126,4 +132,3 @@ def _default_vocab(*, pad_token: str, unk_token: str) -> Mapping[str, int]:
     vocab["."] = len(vocab)
     vocab[","] = len(vocab)
     return vocab
-

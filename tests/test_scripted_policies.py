@@ -40,4 +40,3 @@ def test_drawer_policy_outputs_two_valid_actions() -> None:
         assert action.shape == (4,)
         assert np.linalg.norm(action[:3]) <= 0.05 + 1e-6
         assert 0.0 <= action[3] <= 1.0
-

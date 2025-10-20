@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -28,7 +29,9 @@ class DemoConfig:
     checkpoint: Path | None = None
 
 
-def load_policy(checkpoint_path: str | Path | None = None) -> Callable[[Sequence[dict[str, Any]]], list[np.ndarray]]:
+def load_policy(
+    checkpoint_path: str | Path | None = None,
+) -> Callable[[Sequence[dict[str, Any]]], list[np.ndarray]]:
     """Load a trained policy; defaults to a zero-action shim if unavailable."""
 
     if checkpoint_path is None or SingleBrainVLA is None or torch is None:
@@ -98,5 +101,3 @@ def main() -> None:
 def _zero_policy(observations: Sequence[dict[str, Any]]) -> list[np.ndarray]:
     del observations
     return [np.zeros(4, dtype=np.float32), np.zeros(4, dtype=np.float32)]
-
-

@@ -6,9 +6,9 @@ from pathlib import Path
 
 import pytest
 
-torch = pytest.importorskip("torch")
-
 from train import bc_trainer, schedulers
+
+torch = pytest.importorskip("torch")
 
 
 class _DummyDataset(torch.utils.data.Dataset):
@@ -50,7 +50,9 @@ def test_checkpoint_roundtrip(tmp_path: Path) -> None:
     scheduler = schedulers.cosine_with_warmup(optimizer, warmup_steps=1, total_steps=10)
     checkpoint_path = tmp_path / "ckpt.pt"
     state = bc_trainer.TrainingState(epoch=3, global_step=100, best_metric=0.5)
-    bc_trainer.save_checkpoint(checkpoint_path, model, optimizer, scheduler, state=state, cfg={"seed": 1})
+    bc_trainer.save_checkpoint(
+        checkpoint_path, model, optimizer, scheduler, state=state, cfg={"seed": 1}
+    )
     restored = bc_trainer.load_checkpoint(checkpoint_path, model, optimizer, scheduler)
     assert restored.epoch == 3
     assert restored.global_step == 100

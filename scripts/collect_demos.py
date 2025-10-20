@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import Callable, Iterable, Sequence
 
 import numpy as np
 
@@ -17,7 +17,6 @@ from control.scripted import (
 from data.writer import EpisodeWriter
 from envs import NewtonMAEnv
 
-
 SCRIPTED_POLICIES: dict[str, Callable] = {
     "lift": scripted_lift_policy,
     "handoff": scripted_handoff_policy,
@@ -28,12 +27,18 @@ SCRIPTED_POLICIES: dict[str, Callable] = {
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Collect scripted TeamVLA demonstrations.")
     parser.add_argument("--out", type=Path, default=Path("data/episodes"))
-    parser.add_argument("--task", choices=list(SCRIPTED_POLICIES), default="lift", help="Single task to collect.")
-    parser.add_argument("--tasks", nargs="*", default=None, help="Optional list of tasks to collect.")
+    parser.add_argument(
+        "--task", choices=list(SCRIPTED_POLICIES), default="lift", help="Single task to collect."
+    )
+    parser.add_argument(
+        "--tasks", nargs="*", default=None, help="Optional list of tasks to collect."
+    )
     parser.add_argument("--episodes", type=int, default=1, help="Episodes per task.")
     parser.add_argument("--max-steps", type=int, default=200, help="Max steps per episode.")
     parser.add_argument("--seed", type=int, default=None, help="Optional seed for reproducibility.")
-    parser.add_argument("--record-infos", action="store_true", help="Store environment info in steps.")
+    parser.add_argument(
+        "--record-infos", action="store_true", help="Store environment info in steps."
+    )
     return parser.parse_args(argv)
 
 
@@ -48,12 +53,12 @@ def _collect_task(task: str, args: argparse.Namespace) -> None:
     policy = SCRIPTED_POLICIES[task]
     writer = EpisodeWriter(args.out / task)
     try:
-        for episode_idx in range(args.episodes):
+        for _episode_idx in range(args.episodes):
             observations = env.reset(f"Perform {task}")
             phase_machine = PhaseMachine(tuple(env._phases))  # type: ignore[attr-defined]
             writer.start_episode({"task": task})
             info: dict[str, object] = {}
-            for step in range(args.max_steps):
+            for _step in range(args.max_steps):
                 actions = policy(env, phase_machine, observations)
                 observations, rewards, done, info = env.step(actions)
                 step_payload = _step_payload(observations, actions, rewards, task, info)

@@ -41,17 +41,27 @@ def test_collect_invokes_writer(monkeypatch: pytest.MonkeyPatch, tmp_path: Path)
             self._phases = ("reach", "act")
 
         def reset(self, *_):
-            return [{"rgb": np.zeros((48, 48, 3), dtype=np.uint8)}, {"rgb": np.zeros((48, 48, 3), dtype=np.uint8)}]
+            return [
+                {"rgb": np.zeros((48, 48, 3), dtype=np.uint8)},
+                {"rgb": np.zeros((48, 48, 3), dtype=np.uint8)},
+            ]
 
         def step(self, *_):
-            return [{}, {}], [0.0, 0.0], True, {"task_success": True, "step": 1, "collision": 0.0, "coordination": 1.0}
+            return (
+                [{}, {}],
+                [0.0, 0.0],
+                True,
+                {"task_success": True, "step": 1, "collision": 0.0, "coordination": 1.0},
+            )
 
         def close(self):
             pass
 
     monkeypatch.setattr(collect_demos, "EpisodeWriter", FakeWriter)
     monkeypatch.setattr(collect_demos, "NewtonMAEnv", FakeEnv)
-    monkeypatch.setitem(collect_demos.SCRIPTED_POLICIES, "lift", lambda env, pm, obs: [np.zeros(4), np.zeros(4)])
+    monkeypatch.setitem(
+        collect_demos.SCRIPTED_POLICIES, "lift", lambda env, pm, obs: [np.zeros(4), np.zeros(4)]
+    )
     args = collect_demos.parse_args(["--episodes", "1", "--out", str(tmp_path)])
     collect_demos.collect(args)
     assert calls["start"] == 1
@@ -65,7 +75,9 @@ def test_render_parse_args_defaults() -> None:
 
 def test_render_episode_writes_file(tmp_path: Path) -> None:
     episode_path = tmp_path / "episode.npz"
-    np.savez(episode_path, steps=np.array([{ "rgb_a": np.zeros((48,48,3), dtype=np.uint8)}], dtype=object))
+    np.savez(
+        episode_path,
+        steps=np.array([{"rgb_a": np.zeros((48, 48, 3), dtype=np.uint8)}], dtype=object),
+    )
     render_videos.render_episode(episode_path, tmp_path / "video")
     assert (tmp_path / "video.npy").exists() or (tmp_path / "video.mp4").exists()
-

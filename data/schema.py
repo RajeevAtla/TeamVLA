@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
-from typing import Any, Iterable, Mapping
+from typing import Any
 
 import numpy as np
 from numpy.typing import NDArray
@@ -53,8 +54,22 @@ class FieldSpec:
 
 
 STEP_SPECS: tuple[FieldSpec, ...] = (
-    FieldSpec("rgb_a", (np.ndarray,), ndim=3, last_dim=3, dtype=(np.uint8,), description="Agent A RGB frame"),
-    FieldSpec("rgb_b", (np.ndarray,), ndim=3, last_dim=3, dtype=(np.uint8,), description="Agent B RGB frame"),
+    FieldSpec(
+        "rgb_a",
+        (np.ndarray,),
+        ndim=3,
+        last_dim=3,
+        dtype=(np.uint8,),
+        description="Agent A RGB frame",
+    ),
+    FieldSpec(
+        "rgb_b",
+        (np.ndarray,),
+        ndim=3,
+        last_dim=3,
+        dtype=(np.uint8,),
+        description="Agent B RGB frame",
+    ),
     FieldSpec("q_a", (np.ndarray,), description="Agent A joint configuration"),
     FieldSpec("q_b", (np.ndarray,), description="Agent B joint configuration"),
     FieldSpec("action_a", (np.ndarray,), description="Previous action for agent A"),
@@ -67,8 +82,12 @@ STEP_SPECS: tuple[FieldSpec, ...] = (
 )
 
 OPTIONAL_FIELDS: tuple[FieldSpec, ...] = (
-    FieldSpec("depth_a", (np.ndarray,), required=False, ndim=3, last_dim=1, dtype=(np.float32, np.float64)),
-    FieldSpec("depth_b", (np.ndarray,), required=False, ndim=3, last_dim=1, dtype=(np.float32, np.float64)),
+    FieldSpec(
+        "depth_a", (np.ndarray,), required=False, ndim=3, last_dim=1, dtype=(np.float32, np.float64)
+    ),
+    FieldSpec(
+        "depth_b", (np.ndarray,), required=False, ndim=3, last_dim=1, dtype=(np.float32, np.float64)
+    ),
     FieldSpec("phase", (str,), required=False),
     FieldSpec("timestamp", (float, int, np.floating, np.integer), required=False),
 )
@@ -119,7 +138,9 @@ def validate_episode_meta(meta: Mapping[str, Any], *, num_steps: int | None = No
     if steps < 0:
         raise SchemaError("Episode metadata cannot report a negative 'num_steps'.")
     version = int(meta.get("version", EPISODE_FILE_VERSION))
-    return EpisodeMeta(task=task, episode_id=episode_id, success=success, num_steps=steps, version=version)
+    return EpisodeMeta(
+        task=task, episode_id=episode_id, success=success, num_steps=steps, version=version
+    )
 
 
 def validate_episode(steps: Iterable[Mapping[str, Any]]) -> None:

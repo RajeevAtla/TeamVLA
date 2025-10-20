@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -46,7 +47,7 @@ class HandOffTask:
     def phases(self) -> Sequence[str]:
         return self._phases
 
-    def reset(self, state: "SimulationState", rng: np.random.Generator) -> TaskMetadata:
+    def reset(self, state: SimulationState, rng: np.random.Generator) -> TaskMetadata:
         src = np.array([-0.38, -0.1, 0.08], dtype=np.float64)
         handoff = np.array([0.0, 0.05, 0.20], dtype=np.float64)
         tgt = np.array([0.35, 0.12, 0.08], dtype=np.float64)
@@ -89,7 +90,7 @@ class HandOffTask:
         }
         return TaskMetadata(phases=self._phases, extras=extras)
 
-    def reward(self, state: "SimulationState", phase: str) -> tuple[float, float]:
+    def reward(self, state: SimulationState, phase: str) -> tuple[float, float]:
         runtime = self._runtime(state)
         baton = state.objects["baton"]
         agent_a = state.arms["agent_0"]
@@ -141,7 +142,7 @@ class HandOffTask:
 
         return float(reward[0]), float(reward[1])
 
-    def success(self, state: "SimulationState") -> bool:
+    def success(self, state: SimulationState) -> bool:
         runtime = self._runtime(state)
         return bool(
             runtime.phase_flags.get("release")
@@ -153,7 +154,7 @@ class HandOffTask:
         _unused(obs, phase, agent_id)
         raise NotImplementedError("Scripted policies are provided in Phase 2.")
 
-    def info(self, state: "SimulationState") -> Mapping[str, Any]:
+    def info(self, state: SimulationState) -> Mapping[str, Any]:
         runtime = self._runtime(state)
         phase_name = state.task_state.get("phase", self._phases[0])
         return {
@@ -164,7 +165,7 @@ class HandOffTask:
             "phase_complete": bool(runtime.phase_flags.get(phase_name)),
         }
 
-    def _runtime(self, state: "SimulationState") -> _HandOffRuntime:
+    def _runtime(self, state: SimulationState) -> _HandOffRuntime:
         runtime = state.task_state.setdefault("runtime", _HandOffRuntime())
         return runtime
 

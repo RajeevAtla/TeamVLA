@@ -2,14 +2,15 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Iterable, Mapping
+from typing import Any
 
 import numpy as np
 
-from data.schema import EpisodeMeta, EPISODE_FILE_VERSION, validate_episode_meta, validate_step
+from data.schema import EPISODE_FILE_VERSION, EpisodeMeta, validate_episode_meta, validate_step
 
 
 class EpisodeWriter:
@@ -38,7 +39,7 @@ class EpisodeWriter:
     # Context manager helpers                                           #
     # ------------------------------------------------------------------#
 
-    def __enter__(self) -> "EpisodeWriter":
+    def __enter__(self) -> EpisodeWriter:
         return self
 
     def __exit__(self, *_exc: object) -> None:
@@ -130,4 +131,3 @@ class EpisodeWriter:
     def _episode_path(self, meta: EpisodeMeta) -> Path:
         filename = f"{meta.task}_{meta.episode_id}.{self._fmt}"
         return self._out_dir / filename
-
