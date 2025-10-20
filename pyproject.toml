@@ -78,3 +78,23 @@ dev = [
     "pytest-cov>=4.1",
     "ruff>=0.4",
 ]
+
+[tool.setuptools]
+packages = { find = { include = [
+    "control",
+    "control.*",
+    "data",
+    "data.*",
+    "demos",
+    "demos.*",
+    "envs",
+    "envs.*",
+    "eval",
+    "eval.*",
+    "models",
+    "models.*",
+    "scripts",
+    "scripts.*",
+    "train",
+    "train.*",
+] } }
