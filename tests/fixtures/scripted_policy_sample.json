@@ -1,0 +1,22 @@
+{
+  "instruction": "lift the block together",
+  "task": "lift",
+  "phase_sequence": ["reach", "grasp", "lift"],
+  "actions": [
+    {
+      "phase": "reach",
+      "agent_0": [0.008, 0.002, -0.01, 0.0],
+      "agent_1": [-0.007, 0.001, -0.009, 0.0]
+    },
+    {
+      "phase": "grasp",
+      "agent_0": [0.0, 0.0, -0.005, 0.5],
+      "agent_1": [0.0, 0.0, -0.005, 0.5]
+    },
+    {
+      "phase": "lift",
+      "agent_0": [0.0, 0.0, 0.02, 1.0],
+      "agent_1": [0.0, 0.0, 0.02, 1.0]
+    }
+  ]
+}

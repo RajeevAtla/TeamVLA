@@ -73,6 +73,8 @@ Consult the architecture overview (`planning/architecture.md`) and the prompt sc
 
 ## Data Collection & Training
 
+- **Environment & Control Interfaces**: See `docs/interfaces/env_control.md` for a field-by-field breakdown of observations, action vectors, and scripted policy outputs owned by the simulation/control track.
+
 - Generate scripted demonstrations:
 
   ```bash

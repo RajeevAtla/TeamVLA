@@ -1,5 +1,7 @@
 # Phase 1: Environment and Task Scaffolding
 
+> **Implementation status**: Environment core lives in `envs/core_env.py`; task registry in `envs/tasks/base.py`; concrete tasks in `envs/tasks/{lift,handoff,drawer}.py`; regression tests reside in `tests/test_env_skeleton.py` and `tests/test_task_registry.py`.
+
 ## Objectives
 - Implement import-ready skeletons for `envs/core_env.py` and `envs/tasks/*.py` that strictly follow the interfaces defined in `architecture.md`.
 - Set up a registration mechanism (`TASK_REGISTRY`) enabling dynamic task selection without circular imports.

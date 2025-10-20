@@ -1,5 +1,7 @@
 # Phase 2: Control Utilities and Scripted Policies
 
+> **Implementation status**: Control utilities live in `control/ik_utils.py` and `control/phase_machine.py`; scripted policies are in `control/scripted/{lift,handoff,drawer}_demo.py`; associated regression tests are `tests/test_ik_utils.py`, `tests/test_phase_machine.py`, and `tests/test_scripted_policies.py`.
+
 ## Objectives
 - Scaffold the control layer that supports inverse kinematics, phase progression, and scripted demonstration policies.
 - Ensure each helper function in `control/` is single-purpose, well-typed, and independently testable.
