@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from math import cos, pi
-from typing import Any
+from typing import Any, cast
 
 try:  # pragma: no cover - optional torch dependency
-    import torch
+    import torch  # type: ignore[assignment]
 except ImportError:  # pragma: no cover
-    torch = None
+    torch = cast("Any", None)
 
 
 def _require_torch() -> None:

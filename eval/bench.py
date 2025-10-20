@@ -7,12 +7,12 @@ import json
 import logging
 from collections.abc import Callable, Iterable
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 try:  # pragma: no cover - optional torch dependency
-    import torch
+    import torch  # type: ignore[assignment]
 except ImportError:  # pragma: no cover
-    torch = None
+    torch = cast("Any", None)
 
 from envs import NewtonMAEnv
 from eval.metrics import aggregate_results
@@ -21,7 +21,7 @@ from eval.rollouts import run_suite
 try:  # pragma: no cover - optional torch dependency
     from models.vla_singlebrain import SingleBrainVLA
 except ImportError:  # pragma: no cover
-    SingleBrainVLA = None  # type: ignore
+    SingleBrainVLA = cast("Any", None)
 
 LOGGER = logging.getLogger(__name__)
 

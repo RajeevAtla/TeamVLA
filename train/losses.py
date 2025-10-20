@@ -3,14 +3,14 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any
+from typing import Any, cast
 
 try:  # pragma: no cover - optional torch dependency
-    import torch
-    import torch.nn.functional as F
+    import torch  # type: ignore[assignment]
+    import torch.nn.functional as F  # type: ignore[assignment]
 except ImportError:  # pragma: no cover
-    torch = None
-    F = None
+    torch = cast("Any", None)
+    F = cast("Any", None)
 
 
 def _require_torch() -> None:
@@ -32,14 +32,22 @@ def grip_bce_loss(pred: Any, target: Any, reduction: str = "mean") -> Any:
     return F.binary_cross_entropy_with_logits(pred, target, reduction=reduction)
 
 
-def sync_loss(ee_a: Any, ee_b: Any, phase_mask: Any | None = None) -> Any:
+def sync_loss(
+    ee_a: Any,
+    ee_b: Any,
+    phase_mask: Any | None = None,
+    *,
+    mode: str | None = None,
+    phase: Any | None = None,
+) -> Any:
     """Penalize disagreement between end-effector poses during synchronized phases."""
 
     _require_torch()
     diff = ee_a - ee_b
     sq = diff.pow(2).sum(dim=-1)
-    if phase_mask is not None:
-        weight = phase_mask.float()
+    mask = phase_mask if phase_mask is not None else phase
+    if mask is not None:
+        weight = mask.float()
         sq = sq * weight
         return sq.sum() / weight.sum().clamp_min(1.0)
     return sq.mean()

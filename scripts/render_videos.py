@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 
 try:  # pragma: no cover - optional dependency
-    import imageio.v2 as imageio
+    import imageio  # type: ignore[assignment]
 except ImportError:  # pragma: no cover
     imageio = None
 

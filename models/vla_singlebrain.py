@@ -3,14 +3,14 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from typing import Any
+from typing import Any, cast
 
 try:  # pragma: no cover - optional torch dependency
-    import torch
-    import torch.nn as nn
+    import torch  # type: ignore[assignment]
+    import torch.nn as nn  # type: ignore[assignment]
 except ImportError:  # pragma: no cover
-    torch = None
-    nn = None
+    torch = cast("Any", None)
+    nn = cast("Any", None)
 
 from models.encoders.language import build_text_encoder, forward_text, tokenize
 from models.encoders.vision import build_vision_encoder
@@ -126,8 +126,8 @@ class SingleBrainVLA(nn.Module if nn is not None else object):
         return self._fusion(fused_input)
 
     def _batch_from_observations(
-        self, obs: Sequence[Mapping[str, Any]], *, device: torch.device
-    ) -> dict[str, torch.Tensor]:
+        self, obs: Sequence[Mapping[str, Any]], *, device: "torch.device"
+    ) -> dict[str, Any]:
         obs_a, obs_b = obs
         rgb_a = torch.tensor(
             obs_a.get("rgb", obs_a.get("rgb_a")), dtype=torch.float32, device=device

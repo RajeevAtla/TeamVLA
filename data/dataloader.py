@@ -5,13 +5,19 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING, cast
 
 import numpy as np
+import numpy.typing as npt
 
 from data.schema import EpisodeMeta, validate_episode_meta
 
 Transform = Callable[[dict[str, Any]], dict[str, Any]]
+
+if TYPE_CHECKING:
+    from torch.utils.data import Dataset as TorchDataset
+else:  # pragma: no cover - only used for typing
+    TorchDataset = Any
 
 
 @dataclass(slots=True)
@@ -66,7 +72,7 @@ class MultiTaskDataset:
                 continue
             for path in sorted(root.glob("*.npz")):
                 with np.load(path, allow_pickle=True) as episode:
-                    raw_meta = episode["meta"].item()
+                    raw_meta = _decode_meta(episode["meta"])
                     steps = episode["steps"].tolist()
                 meta = validate_episode_meta(raw_meta, num_steps=len(steps))
                 if self._task_filter and meta.task not in self._task_filter:
@@ -113,8 +119,9 @@ def make_dataloader(cfg: Mapping[str, Any]) -> Any:
         tasks=cfg.get("tasks"),
         limit_per_task=cfg.get("limit_per_task"),
     )
+    torch_dataset = cast("TorchDataset[dict[str, Any]]", dataset)
     return torch.utils.data.DataLoader(
-        dataset,
+        torch_dataset,
         batch_size=cfg.get("batch_size", 1),
         shuffle=cfg.get("shuffle", False),
         num_workers=cfg.get("num_workers", 0),
@@ -128,3 +135,15 @@ def _normalize_transforms(transforms: Sequence[Transform] | Transform | None) ->
     if callable(transforms):
         return [transforms]
     return list(transforms)
+
+
+def _decode_meta(array: npt.NDArray[np.object_] | dict[str, Any]) -> dict[str, Any]:
+    """Convert the stored numpy object array back into an EpisodeMeta mapping."""
+
+    if isinstance(array, dict):
+        return array
+    if array.shape == ():
+        return cast(dict[str, Any], array.item())
+    if array.shape == (1,):
+        return cast(dict[str, Any], array[0])
+    raise ValueError(f"Unexpected episode meta array shape: {array.shape!r}")

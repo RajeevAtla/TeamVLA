@@ -7,15 +7,15 @@ import random
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 import yaml
 
 try:  # pragma: no cover - optional torch dependency
-    import torch
+    import torch  # type: ignore[assignment]
 except ImportError:  # pragma: no cover
-    torch = None
+    torch = cast("Any", None)
 
 from data.dataloader import make_dataloader
 from models import MsgPassingVLA, SingleBrainVLA
@@ -177,7 +177,7 @@ def main(cfg_path: str = "configs/train_bc.yaml") -> None:
     LOGGER.info("Training complete after %s epochs", state.epoch)
 
 
-def _move_batch_to_device(batch: Mapping[str, Any], device: torch.device) -> dict[str, Any]:
+def _move_batch_to_device(batch: Mapping[str, Any], device: "torch.device") -> dict[str, Any]:
     result: dict[str, Any] = {}
     for key, value in batch.items():
         if torch.is_tensor(value):

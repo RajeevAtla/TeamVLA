@@ -5,21 +5,21 @@ from __future__ import annotations
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 
 from envs import NewtonMAEnv
 
 try:  # pragma: no cover - optional torch dependency
-    import torch
+    import torch  # type: ignore[assignment]
 except ImportError:  # pragma: no cover
-    torch = None
+    torch = cast("Any", None)
 
 try:  # pragma: no cover - optional torch dependency
     from models.vla_singlebrain import SingleBrainVLA
 except ImportError:  # pragma: no cover
-    SingleBrainVLA = None  # type: ignore
+    SingleBrainVLA = cast("Any", None)
 
 
 @dataclass(slots=True)
@@ -66,8 +66,12 @@ def run_demo_episode(instruction: str, *, cfg: DemoConfig | None = None) -> dict
     try:
         for _ in range(cfg.max_steps):
             acts = policy(obs)
-            actions_log.append([float(x) for x in acts[0]])
-            obs, _rewards, done, info = env.step(acts)
+            action_seq = [
+                [float(x) for x in np.asarray(agent_action).reshape(-1)]
+                for agent_action in acts
+            ]
+            actions_log.append(action_seq[0])
+            obs, _rewards, done, info = env.step(action_seq)
             if done:
                 break
     finally:

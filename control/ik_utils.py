@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, MutableMapping
-from typing import Any
+from typing import Any, TYPE_CHECKING, Union
 
 import numpy as np
 from numpy.typing import NDArray
@@ -11,6 +11,11 @@ from numpy.typing import NDArray
 POSITION_DIMS = 3
 POSE_DIMS = 7
 DEFAULT_STEP = 0.05
+
+if TYPE_CHECKING:
+    from envs.sim_state import SimulationState
+
+StateLike = Union[Mapping[str, Any], "SimulationState"]
 
 
 def solve_ik(
@@ -43,7 +48,7 @@ def solve_ik(
     return current
 
 
-def ee_pose_from_state(state: Mapping[str, Any], agent_id: int) -> NDArray[np.float64]:
+def ee_pose_from_state(state: StateLike, agent_id: int) -> NDArray[np.float64]:
     """Extract an end-effector pose for ``agent_id`` from a simulation state or observation."""
 
     position = _extract_position(state, agent_id)
@@ -107,7 +112,7 @@ def clamp_action(delta_q: NDArray[np.float64], max_norm: float) -> NDArray[np.fl
 # ---------------------------------------------------------------------------#
 
 
-def _extract_position(state: Mapping[str, Any], agent_id: int) -> NDArray[np.float64]:
+def _extract_position(state: StateLike, agent_id: int) -> NDArray[np.float64]:
     """Support extracting positions from SimulationState, observations, or dicts."""
 
     key = f"agent_{agent_id}"

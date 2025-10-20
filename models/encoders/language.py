@@ -4,14 +4,14 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, cast
 
 try:  # pragma: no cover - optional torch dependency
-    import torch
-    import torch.nn as nn
+    import torch  # type: ignore[assignment]
+    import torch.nn as nn  # type: ignore[assignment]
 except ImportError:  # pragma: no cover
-    torch = None
-    nn = None
+    torch = cast("Any", None)
+    nn = cast("Any", None)
 
 
 @dataclass(slots=True)

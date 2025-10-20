@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass(slots=True)
@@ -38,7 +39,10 @@ def time_to_success(traj: Mapping[str, object]) -> float | None:
 def coordination_score(traj: Mapping[str, object], epsilon: float = 0.0) -> float:
     """Compute the fraction of steps satisfying a coordination threshold."""
 
-    contacts = traj.get("coordination", [])
+    contacts_obj: Any = traj.get("coordination", [])
+    if not isinstance(contacts_obj, Iterable):
+        return 0.0
+    contacts = list(contacts_obj)
     if not contacts:
         return 0.0
     satisfying = sum(1 for value in contacts if float(value) >= 1.0 - epsilon)
@@ -48,7 +52,10 @@ def coordination_score(traj: Mapping[str, object], epsilon: float = 0.0) -> floa
 def collision_cost(traj: Mapping[str, object]) -> float:
     """Return average collision magnitude for a trajectory."""
 
-    penalties = traj.get("collisions", [])
+    penalties_obj: Any = traj.get("collisions", [])
+    if not isinstance(penalties_obj, Iterable):
+        return 0.0
+    penalties = list(penalties_obj)
     if not penalties:
         return 0.0
     return float(sum(abs(float(value)) for value in penalties) / len(penalties))
