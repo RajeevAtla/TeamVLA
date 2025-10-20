@@ -42,6 +42,7 @@ runs/
 episodes/
 outputs/
 *.lock
+!uv.lock
 
 # Newton / assets placeholders
 assets/*.usd

@@ -70,11 +70,11 @@ markers = [
   "requires_newton: marks tests that require the Newton physics runtime",
 ]
 
-[tool.uv]
-dev-dependencies = [
-  "pytest>=8.0",
-  "pytest-cov>=4.1",
-  "mypy>=1.9",
-  "ruff>=0.4",
-  "black>=24.3",
+[dependency-groups]
+dev = [
+    "black>=24.3",
+    "mypy>=1.9",
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
+    "ruff>=0.4",
 ]

@@ -17,7 +17,7 @@ source .venv/bin/activate  # or .venv\\Scripts\\activate on Windows
 # Install runtime dependencies from pyproject.toml / uv.lock
 uv sync
 
-# (Optional) install developer tooling (adds [tool.uv] dev-dependencies)
+# (Optional) install developer tooling (adds [dependency-groups.dev])
 uv sync --dev
 ```
 
